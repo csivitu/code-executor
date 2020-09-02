@@ -1,0 +1,43 @@
+{
+  "name": "code-executor",
+  "version": "0.0.1",
+  "description": "A CLI/library to execute code against test cases in various languages and obtain relevant results.",
+  "main": "dist/src/index.js",
+  "scripts": {
+    "build": "npm run clean && tsc",
+    "clean": "rimraf ./dist",
+    "test": "mocha --config test/.mocharc.json test/**/*.ts",
+    "lint": "eslint \"src/**/*.{ts,js,jsx}\" \"test/**/*.ts\" \"examples/**/*.{ts,js}\"",
+    "pack-src": "ncc build src/index.ts -o dist/src",
+    "pack": "npm run clean && npm run build && npm run pack-cli",
+    "start": "ts-node src/index.ts",
+    "prepare": "npm run build",
+    "preinstall": "node ./preinstall.js",
+    "postinstall": "node ./postinstall.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/ashikka/code-executor.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/ashikka/code-executor/issues"
+  },
+  "homepage": "https://github.com/ashikka/code-executor#readme",
+  "devDependencies": {
+    "@typescript-eslint/eslint-plugin": "^4.0.1",
+    "@typescript-eslint/parser": "^4.0.1",
+    "eslint": "^7.8.1",
+    "eslint-config-airbnb-base": "^14.2.0",
+    "eslint-plugin-import": "^2.22.0",
+    "husky": "^4.2.5",
+    "mocha": "^8.1.3",
+    "typescript": "^4.0.2"
+  },
+  "husky": {
+    "hooks": {
+      "pre-commit": "npm run lint"
+    }
+  }
+}
