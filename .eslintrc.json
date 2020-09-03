@@ -1,23 +1,27 @@
 {
     "env": {
         "node": true,
-        "es2021": true
+        "es6": true
     },
     "extends": [
-        "airbnb-base"
+        "airbnb-typescript/base"
     ],
     "parser": "@typescript-eslint/parser",
     "parserOptions": {
-        "ecmaVersion": 12,
-        "sourceType": "module"
+        "project": "./tsconfig.json",
+        "ecmaVersion": 2019
     },
     "plugins": [
         "@typescript-eslint"
     ],
+    "globals": {
+        "Atomics": "readonly",
+        "SharedArrayBuffer": "readonly"
+    },
     "rules": {
-            "@typescript-eslint/indent": [
-                "error",
-                4
-            ]
+        "@typescript-eslint/indent": [
+            "error",
+            4
+        ]
     }
 }
