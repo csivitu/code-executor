@@ -40,5 +40,8 @@
       "pre-commit": "npm run lint"
     }
   },
-  "dependencies": {}
+  "dependencies": {
+    "@types/dockerode": "^2.5.34",
+    "dockerode": "^3.2.1"
+  }
 }
