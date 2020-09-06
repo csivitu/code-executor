@@ -1,15 +1,7 @@
-import util from 'util';
-import { exec } from 'child_process';
+import Docker from 'dockerode';
 
-const execute = util.promisify(exec);
-async function lsWithGrep() {
-    try {
-        const { stdout, stderr } = await execute('ls | grep js');
-        console.log('stdout:', stdout);
-        console.log('stderr:', stderr);
-    } catch (err) {
-        console.error(err);
-    }
-}
+import Builder from './Builder';
 
-lsWithGrep();
+const docker = new Docker();
+const builder = new Builder(docker);
+builder.build();
