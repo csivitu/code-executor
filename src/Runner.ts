@@ -9,7 +9,7 @@ export default class Runner {
         this.docker = docker;
     }
 
-    async runner(tag: string): Promise<void> {
-        await this.docker.run(tag, ['python', '-c', 'uname -a'], process.stdout);
+    async run(tag: string): Promise<void> {
+        await this.docker.run(tag, [], process.stdout);
     }
 }
