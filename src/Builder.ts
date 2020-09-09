@@ -10,16 +10,28 @@ export default class Builder {
         this.docker = docker;
     }
 
-    async build(tag: string): Promise<void> {
+    async build(img: string): Promise<void> {
         const stream: NodeJS.ReadableStream = await this.docker.buildImage({
             context: path.join(__dirname, 'langs', 'Python'),
             src: ['Dockerfile', 'hello.py'],
         }, {
-            t: tag,
+            t: img,
         });
 
         stream.pipe(process.stdout, {
             end: true,
+        });
+
+        await this.docker.createContainer({
+            Image: img,
+            AttachStdin: false,
+            AttachStdout: true,
+            Tty: false,
+            Cmd: [],
+            Volumes: {
+                '/app': {},
+            },
+            Binds: ['']
         });
     }
 }
