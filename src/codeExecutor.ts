@@ -18,6 +18,10 @@ interface Code {
     language: string,
     testCases: TestCase[];
 }
+interface Options {
+    redis: string;
+    noOfWorkers: number;
+}
 
 export default class CodeExecutor {
     private Queue: typeof Queue;
@@ -30,9 +34,9 @@ export default class CodeExecutor {
 
     noOfWorkers: number;
 
-    constructor(obj: any) {
-        this.redis = obj.redis;
-        this.noOfWorkers = obj.noOfWorkers;
+    constructor(option: Options) {
+        this.redis = option.redis;
+        this.noOfWorkers = option.noOfWorkers;
     }
 
     async buildContainer(): Promise<void> {
