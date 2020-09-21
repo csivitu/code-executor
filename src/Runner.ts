@@ -24,7 +24,7 @@ export default class Runner {
     }
 
     async run(tag: string, code: string, options?: RunnerOptions): Promise<void> {
-        const opts = options || { base64: false, folderPath: process.env.PATH };
+        const opts = options || { base64: false, folderPath: process.env.FOLDERPATH };
 
         if (opts.base64) {
             decodeBase64(code);
