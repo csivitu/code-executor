@@ -46,6 +46,7 @@
     "@types/randomstring": "^1.1.6",
     "bull": "^3.18.0",
     "dockerode": "^3.2.1",
+    "dotenv": "^8.2.0",
     "randomstring": "^1.1.5",
     "winston": "^3.3.3"
   }
