@@ -6,6 +6,11 @@ import decodeBase64 from './utils/decodeBase64';
 import containerLogs from './utils/containerLogs';
 import logger from './utils/logger';
 
+interface TestCase {
+    input: string;
+    output: string;
+}
+
 export default class Runner {
     private docker: Docker;
 
@@ -13,9 +18,21 @@ export default class Runner {
         this.docker = docker;
     }
 
-    private static async saveCode(folderPath: string, code: string) {
+    private static async saveCode(folderPath: string,
+        code: string,
+        testCases: Array<TestCase>,
+        base64?: boolean) {
         const folder = await generateFolder(folderPath);
         await writeToFile(path.join(folder, 'code.py'), code);
+        const promisesToKeep = [];
+        for (let i = 0; i < testCases.length; i += 1) {
+            const [input, output] = (base64)
+                ? [decodeBase64(testCases[i].input), decodeBase64(testCases[i].output)]
+                : [testCases[i].input, testCases[i].output];
+            promisesToKeep.push(writeToFile(path.join(folder, `in${i}.txt`), input));
+            promisesToKeep.push(writeToFile(path.join(folder, `out${i}.txt`), output));
+        }
+        await Promise.all(promisesToKeep);
         return folder;
     }
 
@@ -23,14 +40,26 @@ export default class Runner {
         tag, code, testCases, base64, folderPath,
     }: {
         tag: string; code: string;
-        testCases: Array<object>;
+        testCases: Array<TestCase>;
         base64?: boolean; folderPath?: string;
     }): Promise<void> {
         const opts = { base64: base64 || false, folderPath: folderPath || process.env.FOLDERPATH || '/tmp' };
 
-        const Path = (opts.base64) ? await Runner.saveCode(opts.folderPath, decodeBase64(code)) : await Runner.saveCode(opts.folderPath, code);
+        const Path = (opts.base64)
+            ? await Runner.saveCode(opts.folderPath, decodeBase64(code), testCases, true)
+            : await Runner.saveCode(opts.folderPath, code, testCases);
 
-        const container = await this.docker.createContainer({ Image: tag, Cmd: ['python3', '/app/code.py'], HostConfig: { Mounts: [{ Source: Path, Target: '/app', Type: 'bind' }] } });
+        const container = await this.docker.createContainer({
+            Image: tag,
+            Cmd: ['python3', '/app/code.py'],
+            HostConfig: {
+                Mounts: [{
+                    Source: Path,
+                    Target: '/app',
+                    Type: 'bind',
+                }],
+            },
+        });
 
         await container.start();
 

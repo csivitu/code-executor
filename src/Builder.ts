@@ -10,19 +10,16 @@ export default class Builder {
     }
 
     async build(): Promise<void> {
-        const dir = path.join(__dirname, 'langs');
-        fs.readdir(dir, (err, langs) => {
-            if (err) throw err;
-            langs.forEach(async (lang) => {
-                const stream: NodeJS.ReadableStream = await this.docker.buildImage({
-                    context: path.join(__dirname, 'langs', lang),
-                    src: ['Dockerfile'],
-                }, {
-                    t: `${lang.toLowerCase()}-runner`,
-                });
-
-                stream.pipe(process.stdout);
+        const languages = fs.readdirSync(path.join(__dirname, 'langs'));
+        languages.forEach(async (lang) => {
+            const stream: NodeJS.ReadableStream = await this.docker.buildImage({
+                context: path.join(__dirname, 'langs', lang),
+                src: ['Dockerfile'],
+            }, {
+                t: `${lang.toLowerCase()}-runner`,
             });
+
+            stream.pipe(process.stdout);
         });
     }
 }
