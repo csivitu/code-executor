@@ -1,8 +1,8 @@
+import * as dotenv from 'dotenv';
 import Bull from 'bull';
 import Docker from 'dockerode';
 import Builder from './Builder';
 import Worker from './Worker';
-import * as dotenv from 'dotenv';
 
 dotenv.config();
 
