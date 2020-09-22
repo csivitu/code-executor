@@ -21,7 +21,7 @@ export default class Worker {
     async work(codeOptions: Code): Promise<void> {
         const array = [];
         for (let i = 0; i < codeOptions.testCases.length; i += 1) {
-            array.push(this.runner.run('python-runner', 'print("hello")', 'python', [{ input: '5', output: '0 1 1 2 3' }]));
+            array.push(this.runner.run({ tag: 'python-runner', code: 'print("hello")', testCases: [{ input: '5', output: '0 1 1 2 3' }] }));
         }
         const array2 = await Promise.all(array);
     }
