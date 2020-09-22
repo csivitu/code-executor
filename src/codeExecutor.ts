@@ -40,8 +40,8 @@ export default class CodeExecutor {
         this.noOfWorkers = option.noOfWorkers;
     }
 
-    async buildContainer(): Promise<void> {
-        await this.builder.build('python-runner');
+    async buildContainer(lang: string): Promise<void> {
+        await this.builder.build(`${lang}-runner`);
     }
 
     async add(codeOptions: Code): Promise<void> {
