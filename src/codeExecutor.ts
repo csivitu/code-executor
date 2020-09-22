@@ -50,19 +50,19 @@ export class Worker {
 
     private queue = (() => new Bull(this.name, this.redis))();
 
-    private async work(codeOptions: Code): Promise<void> {
+    private static async work(codeOptions: Code): Promise<void> {
         const tag = `${codeOptions.language.toLowerCase()}-runner`;
         const { code } = codeOptions;
         await runner.run({ tag, code, testCases: codeOptions.testCases });
     }
 
-    async build() {
+    static async build() {
         await builder.build();
     }
 
     start() {
         this.queue.process(async (job, done) => {
-            await this.work(job.data);
+            await Worker.work(job.data);
             done();
         });
     }

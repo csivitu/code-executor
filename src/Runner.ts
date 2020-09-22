@@ -13,7 +13,7 @@ export default class Runner {
         this.docker = docker;
     }
 
-    private async saveCode(folderPath: string, code: string) {
+    private static async saveCode(folderPath: string, code: string) {
         const folder = await generateFolder(folderPath);
         await writeToFile(path.join(folder, 'code.py'), code);
         return folder;
@@ -28,7 +28,7 @@ export default class Runner {
     }): Promise<void> {
         const opts = { base64: base64 || false, folderPath: folderPath || process.env.FOLDERPATH || '/tmp' };
 
-        const Path = (opts.base64) ? await this.saveCode(opts.folderPath, decodeBase64(code)) : await this.saveCode(opts.folderPath, code);
+        const Path = (opts.base64) ? await Runner.saveCode(opts.folderPath, decodeBase64(code)) : await Runner.saveCode(opts.folderPath, code);
 
         const container = await this.docker.createContainer({ Image: tag, Cmd: ['python3', '/app/code.py'], HostConfig: { Mounts: [{ Source: Path, Target: '/app', Type: 'bind' }] } });
 
