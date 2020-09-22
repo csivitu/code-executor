@@ -1,15 +1,14 @@
 import * as dotenv from 'dotenv';
 import Bull from 'bull';
 import Docker from 'dockerode';
+import Runner from './Runner';
 import Builder from './Builder';
-import Worker from './Worker';
+
+const docker = new Docker();
+const runner = new Runner(docker);
+const builder = new Builder(docker);
 
 dotenv.config();
-
-const Queue = new Bull('queue');
-const docker = new Docker();
-const builder = new Builder(docker);
-const worker = new Worker();
 
 interface TestCase {
     input: string;
@@ -21,37 +20,50 @@ interface Code {
     language: string,
     testCases: TestCase[];
 }
-interface Options {
-    redis: string;
-    noOfWorkers: number;
-}
 
 export default class CodeExecutor {
-    private Queue: typeof Queue;
+    private redis: string;
 
-    private builder: typeof builder;
+    private name: string;
 
-    redis: string;
-
-    noOfWorkers: number;
-
-    constructor(option: Options) {
-        this.redis = option.redis;
-        this.noOfWorkers = option.noOfWorkers;
+    constructor(name: string, redis: string) {
+        this.redis = redis;
+        this.name = name;
     }
 
-    async buildContainer(lang: string): Promise<void> {
-        await this.builder.build(`${lang}-runner`);
-    }
+    private queue = (() => new Bull(this.name, this.redis))();
 
     async add(codeOptions: Code): Promise<void> {
-        const data = codeOptions;
-        await this.Queue.add(data);
+        await this.queue.add(codeOptions);
+    }
+}
+
+export class Worker {
+    private redis: string;
+
+    private name: string;
+
+    constructor(name: string, redis: string) {
+        this.redis = redis;
+        this.name = name;
     }
 
-    async start(): Promise<void> {
-        await this.Queue.process((job) => {
-            worker.work(job.data);
+    private queue = (() => new Bull(this.name, this.redis))();
+
+    private async work(codeOptions: Code): Promise<void> {
+        const tag = `${codeOptions.language.toLowerCase()}-runner`;
+        const { code } = codeOptions;
+        await runner.run({ tag, code, testCases: codeOptions.testCases });
+    }
+
+    async build() {
+        await builder.build();
+    }
+
+    start() {
+        this.queue.process(async (job, done) => {
+            await this.work(job.data);
+            done();
         });
     }
 }
