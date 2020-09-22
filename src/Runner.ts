@@ -3,6 +3,7 @@ import path from 'path';
 import writeToFile from './utils/writeToFile';
 import generateFolder from './utils/generateFolder';
 import decodeBase64 from './utils/decodeBase64';
+import containerLogs from './utils/containerLogs';
 import logger from './utils/logger';
 
 interface RunnerOptions {
@@ -31,10 +32,18 @@ export default class Runner {
         }
 
         const Path = await Runner.saveCode(opts.folderPath, code);
+        const container = await this.docker.createContainer({ Image: tag, Cmd: ['python3', '/app/code.py'], HostConfig: { Mounts: [{ Source: Path, Target: '/app', Type: 'bind' }] } });
 
-        const [status, container] = await this.docker.run(tag, ['python3', '/app/code.py'], process.stdout, { HostConfig: { Mounts: [{ Source: Path, Target: '/app', Type: 'bind' }] } });
+        await container.start();
 
-        logger.log(status.StatusCode);
-        logger.log(container.id);
+        const [outputStream, errorStream] = await containerLogs(container);
+        
+        outputStream.on('data', (chunk) => {
+            logger.log({ level: 'info', message: chunk });
+        });
+
+        errorStream.on('data', (chunk) => {
+            logger.log({ level: 'error', message: chunk });
+        });
     }
 }
