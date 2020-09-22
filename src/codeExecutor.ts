@@ -31,8 +31,6 @@ export default class CodeExecutor {
 
     private builder: typeof builder;
 
-    queue: Code[];
-
     redis: string;
 
     noOfWorkers: number;

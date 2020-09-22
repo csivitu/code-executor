@@ -21,7 +21,11 @@ export default class Runner {
 
     async run({
         tag, code, testCases, base64, folderPath,
-    }: { tag: string; code: string; testCases: Array<object>; base64?: boolean; folderPath?: string; }): Promise<void> {
+    }: {
+        tag: string; code: string;
+        testCases: Array<object>;
+        base64?: boolean; folderPath?: string;
+    }): Promise<void> {
         const opts = { base64: base64 || false, folderPath: folderPath || process.env.FOLDERPATH };
 
         if (opts.base64) {
