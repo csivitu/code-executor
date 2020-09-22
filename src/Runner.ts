@@ -24,7 +24,7 @@ export default class Runner {
         return folder;
     }
 
-    async run(tag: string, code: string, options?: RunnerOptions): Promise<void> {
+    async run({ tag, code, testCases, options }: { tag: string; code: string; testCases: Array<object>; options?: RunnerOptions; }): Promise<void> {
         const opts = options || { base64: false, folderPath: process.env.FOLDERPATH };
 
         if (opts.base64) {
@@ -37,7 +37,7 @@ export default class Runner {
         await container.start();
 
         const [outputStream, errorStream] = await containerLogs(container);
-        
+
         outputStream.on('data', (chunk) => {
             logger.log({ level: 'info', message: chunk });
         });
