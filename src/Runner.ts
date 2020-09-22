@@ -6,11 +6,6 @@ import decodeBase64 from './utils/decodeBase64';
 import containerLogs from './utils/containerLogs';
 import logger from './utils/logger';
 
-interface RunnerOptions {
-    base64: boolean;
-    folderPath: string;
-}
-
 export default class Runner {
     private docker: Docker;
 
@@ -24,8 +19,10 @@ export default class Runner {
         return folder;
     }
 
-    async run({ tag, code, testCases, options }: { tag: string; code: string; testCases: Array<object>; options?: RunnerOptions; }): Promise<void> {
-        const opts = options || { base64: false, folderPath: process.env.FOLDERPATH };
+    async run({
+        tag, code, testCases, base64, folderPath,
+    }: { tag: string; code: string; testCases: Array<object>; base64?: boolean; folderPath?: string; }): Promise<void> {
+        const opts = { base64: base64 || false, folderPath: folderPath || process.env.FOLDERPATH };
 
         if (opts.base64) {
             decodeBase64(code);
