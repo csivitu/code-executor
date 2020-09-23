@@ -5,11 +5,7 @@ import generateFolder from './utils/generateFolder';
 import decodeBase64 from './utils/decodeBase64';
 import containerLogs from './utils/containerLogs';
 import logger from './utils/logger';
-
-interface TestCase {
-    input: string;
-    output: string;
-}
+import { TestCase } from './models';
 
 export default class Runner {
     private docker: Docker;
