@@ -20,7 +20,7 @@ export default class Runner {
 
     private static async saveCode(folderPath: string,
         code: string,
-        testCases: Array<TestCase>,
+        testCases: TestCase[],
         base64?: boolean) {
         const folder = await generateFolder(folderPath);
         await writeToFile(path.join(folder, 'code.py'), code);
@@ -40,7 +40,7 @@ export default class Runner {
         tag, code, testCases, base64, folderPath,
     }: {
         tag: string; code: string;
-        testCases: Array<TestCase>;
+        testCases: TestCase[];
         base64?: boolean; folderPath?: string;
     }): Promise<void> {
         const opts = { base64: base64 || false, folderPath: folderPath || process.env.FOLDERPATH || '/tmp' };
