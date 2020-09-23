@@ -5,14 +5,16 @@ import generateFolder from './utils/generateFolder';
 import decodeBase64 from './utils/decodeBase64';
 import containerLogs from './utils/containerLogs';
 import logger from './utils/logger';
+import findExtension from './utils/findExtension';
 import { TestCase } from './models';
 
 interface RunnerOpts {
     tag: string;
     code: string;
     testCases: TestCase[];
-    base64?: boolean;
-    folderPath?: string;
+    base64: boolean;
+    folderPath: string;
+    language: string;
 }
 
 export default class Runner {
@@ -26,11 +28,15 @@ export default class Runner {
         folderPath: string,
         code: string,
         testCases: TestCase[],
-        base64?: boolean,
+        base64: boolean,
+        language: string,
     ): Promise<string> {
         const folder = await generateFolder(folderPath);
-        await writeToFile(path.join(folder, 'code.py'), code);
-        const promisesToKeep = [];
+        const extension = findExtension(language);
+
+        const promisesToKeep = [(base64)
+            ? writeToFile(path.join(folder, `code.${extension}`), decodeBase64(code))
+            : writeToFile(path.join(folder, `code.${extension}`), code)];
         for (let i = 0; i < testCases.length; i += 1) {
             const [input, output] = (base64)
                 ? [decodeBase64(testCases[i].input), decodeBase64(testCases[i].output)]
@@ -49,13 +55,10 @@ export default class Runner {
             testCases,
             base64,
             folderPath,
+            language,
         }: RunnerOpts,
     ): Promise<void> {
-        const opts = { base64: base64 || false, folderPath: folderPath || process.env.FOLDERPATH || '/tmp' };
-
-        const Path = (opts.base64)
-            ? await Runner.saveCode(opts.folderPath, decodeBase64(code), testCases, true)
-            : await Runner.saveCode(opts.folderPath, code, testCases);
+        const Path = await Runner.saveCode(folderPath, code, testCases, base64, language);
 
         const container = await this.docker.createContainer({
             Image: tag,
