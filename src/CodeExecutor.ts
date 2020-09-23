@@ -1,19 +1,9 @@
 import * as dotenv from 'dotenv';
 import Bull from 'bull';
-import Worker from './Worker';
+
+import { Code } from './models';
 
 dotenv.config();
-
-interface TestCase {
-    input: string;
-    output: string;
-}
-interface Code {
-    id: string;
-    code: string,
-    language: string,
-    testCases: TestCase[];
-}
 
 export default class CodeExecutor {
     private redis: string;
@@ -32,4 +22,4 @@ export default class CodeExecutor {
     }
 }
 
-export { Worker };
+export { default as Worker } from './Worker';
