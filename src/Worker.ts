@@ -1,5 +1,5 @@
 import Docker from 'dockerode';
-import Bull from 'bull';
+import Bull, { Job } from 'bull';
 import Runner from './Runner';
 import Builder from './Builder';
 
@@ -13,6 +13,8 @@ export default class Worker {
     private builder: Builder;
 
     private queue: Bull.Queue;
+
+    private job: Bull.Job;
 
     private folderPath?: string;
 
@@ -28,6 +30,7 @@ export default class Worker {
         const tag = `${codeOptions.language.toLowerCase()}-runner`;
         await this.runner.run({
             tag,
+            id: codeOptions.id,
             code: codeOptions.code,
             testCases: codeOptions.testCases,
             folderPath: this.folderPath,
@@ -43,7 +46,17 @@ export default class Worker {
     start() {
         this.queue.process(async (job, done) => {
             await this.work(job.data);
+            this.progress(job);
             done();
         });
+    }
+
+    progress(job: Job) {
+        let progress = 0;
+        for (let i = 0; i < 100; i += 1) {
+            this.work(job.data);
+            progress += 10;
+            job.progress(progress);
+        }
     }
 }

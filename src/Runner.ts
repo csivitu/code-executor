@@ -9,6 +9,7 @@ import findExtension from './utils/findExtension';
 import { TestCase } from './models';
 
 interface RunnerOpts {
+    id: string;
     tag: string;
     code: string;
     testCases: TestCase[];
@@ -50,6 +51,7 @@ export default class Runner {
 
     async run(
         {
+            id,
             tag,
             code,
             testCases,
@@ -62,7 +64,7 @@ export default class Runner {
 
         const container = await this.docker.createContainer({
             Image: tag,
-            Cmd: ['python3', '/app/code.py'],
+            Cmd: ['bash', '-c', '(cat in1.txt | python3 code.py) > out1.txt'],
             HostConfig: {
                 Mounts: [{
                     Source: Path,
@@ -73,7 +75,6 @@ export default class Runner {
         });
 
         await container.start();
-
         const [outputStream, errorStream] = await containerLogs(container);
 
         outputStream.on('data', (chunk) => {
