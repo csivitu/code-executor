@@ -5,6 +5,7 @@ import generateFolder from './utils/generateFolder';
 import decodeBase64 from './utils/decodeBase64';
 import containerLogs from './utils/containerLogs';
 import logger from './utils/logger';
+import findExtension from './utils/findExtension';
 import { TestCase } from './models';
 
 interface RunnerOpts {
@@ -13,6 +14,7 @@ interface RunnerOpts {
     testCases: TestCase[];
     base64: boolean;
     folderPath: string;
+    language: string;
 }
 
 export default class Runner {
@@ -27,11 +29,14 @@ export default class Runner {
         code: string,
         testCases: TestCase[],
         base64: boolean,
+        language: string,
     ): Promise<string> {
         const folder = await generateFolder(folderPath);
+        const extension = findExtension(language);
+
         const promisesToKeep = [(base64)
-            ? writeToFile(path.join(folder, 'code.py'), decodeBase64(code))
-            : writeToFile(path.join(folder, 'code.py'), code)];
+            ? writeToFile(path.join(folder, `code.${extension}`), decodeBase64(code))
+            : writeToFile(path.join(folder, `code.${extension}`), code)];
         for (let i = 0; i < testCases.length; i += 1) {
             const [input, output] = (base64)
                 ? [decodeBase64(testCases[i].input), decodeBase64(testCases[i].output)]
@@ -50,9 +55,10 @@ export default class Runner {
             testCases,
             base64,
             folderPath,
+            language,
         }: RunnerOpts,
     ): Promise<void> {
-        const Path = await Runner.saveCode(folderPath, code, testCases, base64);
+        const Path = await Runner.saveCode(folderPath, code, testCases, base64, language);
 
         const container = await this.docker.createContainer({
             Image: tag,

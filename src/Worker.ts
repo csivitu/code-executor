@@ -32,6 +32,7 @@ export default class Worker {
             testCases: codeOptions.testCases,
             folderPath: this.folderPath,
             base64: codeOptions.base64 || false,
+            language: codeOptions.language,
         });
     }
 
