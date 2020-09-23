@@ -6,25 +6,20 @@ import Builder from './Builder';
 import { Code } from './models';
 
 export default class Worker {
-    private redis: string;
-
-    private name: string;
-
     private runner: Runner;
 
     private docker: Docker;
 
     private builder: Builder;
 
+    private queue: Bull.Queue;
+
     constructor(name: string, redis: string) {
-        this.redis = redis;
-        this.name = name;
         this.docker = new Docker();
         this.runner = new Runner(this.docker);
         this.builder = new Builder(this.docker);
+        this.queue = new Bull(name, redis);
     }
-
-    private queue = (() => new Bull(this.name, this.redis))();
 
     private async work(codeOptions: Code): Promise<void> {
         const tag = `${codeOptions.language.toLowerCase()}-runner`;

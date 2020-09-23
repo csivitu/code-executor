@@ -6,16 +6,11 @@ import { Code } from './models';
 dotenv.config();
 
 export default class CodeExecutor {
-    private redis: string;
-
-    private name: string;
+    private queue: Bull.Queue;
 
     constructor(name: string, redis: string) {
-        this.redis = redis;
-        this.name = name;
+        this.queue = new Bull(name, redis);
     }
-
-    private queue = (() => new Bull(this.name, this.redis))();
 
     async add(codeOptions: Code): Promise<void> {
         await this.queue.add(codeOptions);
