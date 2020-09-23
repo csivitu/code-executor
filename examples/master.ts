@@ -3,7 +3,13 @@ import CodeExecutor from '../src/CodeExecutor';
 const codeExecutor = new CodeExecutor('myexecutor', 'redis://127.0.0.1:6379');
 
 const inputs = [{
-    id: '1', language: 'python', code: 'print("hello")', testCases: [{ input: '', output: 'hello' }],
+    id: '1',
+    language: 'python',
+    code: 'print("hello")',
+    testCases: [{
+        input: '',
+        output: 'hello',
+    }],
 }];
 
 function main() {
