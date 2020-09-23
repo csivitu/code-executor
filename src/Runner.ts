@@ -11,8 +11,8 @@ interface RunnerOpts {
     tag: string;
     code: string;
     testCases: TestCase[];
-    base64?: boolean;
-    folderPath?: string;
+    base64: boolean;
+    folderPath: string;
 }
 
 export default class Runner {
@@ -26,11 +26,12 @@ export default class Runner {
         folderPath: string,
         code: string,
         testCases: TestCase[],
-        base64?: boolean,
+        base64: boolean,
     ): Promise<string> {
         const folder = await generateFolder(folderPath);
-        await writeToFile(path.join(folder, 'code.py'), code);
-        const promisesToKeep = [];
+        const promisesToKeep = [(base64)
+            ? writeToFile(path.join(folder, 'code.py'), decodeBase64(code))
+            : writeToFile(path.join(folder, 'code.py'), code)];
         for (let i = 0; i < testCases.length; i += 1) {
             const [input, output] = (base64)
                 ? [decodeBase64(testCases[i].input), decodeBase64(testCases[i].output)]
@@ -51,11 +52,7 @@ export default class Runner {
             folderPath,
         }: RunnerOpts,
     ): Promise<void> {
-        const opts = { base64: base64 || false, folderPath: folderPath || process.env.FOLDERPATH || '/tmp' };
-
-        const Path = (opts.base64)
-            ? await Runner.saveCode(opts.folderPath, decodeBase64(code), testCases, true)
-            : await Runner.saveCode(opts.folderPath, code, testCases);
+        const Path = await Runner.saveCode(folderPath, code, testCases, base64);
 
         const container = await this.docker.createContainer({
             Image: tag,

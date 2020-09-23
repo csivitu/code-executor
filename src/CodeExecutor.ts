@@ -1,9 +1,6 @@
-import * as dotenv from 'dotenv';
 import Bull from 'bull';
 
 import { Code } from './models';
-
-dotenv.config();
 
 export default class CodeExecutor {
     private queue: Bull.Queue;
