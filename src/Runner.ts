@@ -7,6 +7,14 @@ import containerLogs from './utils/containerLogs';
 import logger from './utils/logger';
 import { TestCase } from './models';
 
+interface RunnerOpts {
+    tag: string;
+    code: string;
+    testCases: TestCase[];
+    base64?: boolean;
+    folderPath?: string;
+}
+
 export default class Runner {
     private docker: Docker;
 
@@ -14,10 +22,12 @@ export default class Runner {
         this.docker = docker;
     }
 
-    private static async saveCode(folderPath: string,
+    private static async saveCode(
+        folderPath: string,
         code: string,
         testCases: TestCase[],
-        base64?: boolean) {
+        base64?: boolean,
+    ): Promise<string> {
         const folder = await generateFolder(folderPath);
         await writeToFile(path.join(folder, 'code.py'), code);
         const promisesToKeep = [];
@@ -32,13 +42,15 @@ export default class Runner {
         return folder;
     }
 
-    async run({
-        tag, code, testCases, base64, folderPath,
-    }: {
-        tag: string; code: string;
-        testCases: TestCase[];
-        base64?: boolean; folderPath?: string;
-    }): Promise<void> {
+    async run(
+        {
+            tag,
+            code,
+            testCases,
+            base64,
+            folderPath,
+        }: RunnerOpts,
+    ): Promise<void> {
         const opts = { base64: base64 || false, folderPath: folderPath || process.env.FOLDERPATH || '/tmp' };
 
         const Path = (opts.base64)
