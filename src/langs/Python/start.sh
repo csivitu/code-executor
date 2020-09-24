@@ -1,0 +1,1 @@
+(cat in1.txt | python3 code.py) > output1.txt

@@ -64,7 +64,7 @@ export default class Runner {
 
         const container = await this.docker.createContainer({
             Image: tag,
-            Cmd: ['bash', '-c', '(cat in1.txt | python3 code.py) > out1.txt'],
+            Cmd: ['bash', 'start.sh'],
             HostConfig: {
                 Mounts: [{
                     Source: Path,
