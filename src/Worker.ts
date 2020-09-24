@@ -59,4 +59,8 @@ export default class Worker {
             job.progress(progress);
         }
     }
+
+    result(job: Job) {
+        return this.work(job.data);
+    }
 }

@@ -51,7 +51,6 @@ export default class Runner {
 
     async run(
         {
-            id,
             tag,
             code,
             testCases,
@@ -59,7 +58,7 @@ export default class Runner {
             folderPath,
             language,
         }: RunnerOpts,
-    ): Promise<void> {
+    ): Promise<object> {
         const Path = await Runner.saveCode(folderPath, code, testCases, base64, language);
 
         const container = await this.docker.createContainer({
@@ -75,14 +74,18 @@ export default class Runner {
         });
 
         await container.start();
+
         const [outputStream, errorStream] = await containerLogs(container);
 
-        outputStream.on('data', (chunk) => {
-            logger.log({ level: 'info', message: chunk });
-        });
+        const result = {
+            output: outputStream.on('data', (chunk) => {
+                logger.log({ level: 'info', message: chunk });
+            }),
+            error: errorStream.on('data', (chunk) => {
+                logger.log({ level: 'error', message: chunk });
+            }),
+        };
 
-        errorStream.on('data', (chunk) => {
-            logger.log({ level: 'error', message: chunk });
-        });
+        return result;
     }
 }
