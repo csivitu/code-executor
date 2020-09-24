@@ -3,7 +3,7 @@ import Bull, { Job } from 'bull';
 import Runner from './Runner';
 import Builder from './Builder';
 
-import { Code } from './models';
+import { Code } from './models/models';
 
 export default class Worker {
     private runner: Runner;

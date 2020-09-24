@@ -1,6 +1,6 @@
 import Bull from 'bull';
 
-import { Code } from './models';
+import { Code } from './models/models';
 import Worker from './Worker';
 
 export default class CodeExecutor {

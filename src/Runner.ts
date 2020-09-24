@@ -1,12 +1,13 @@
 import Docker from 'dockerode';
 import path from 'path';
+import { performance } from 'perf_hooks';
 import writeToFile from './utils/writeToFile';
 import generateFolder from './utils/generateFolder';
 import decodeBase64 from './utils/decodeBase64';
 import containerLogs from './utils/containerLogs';
 import logger from './utils/logger';
 import findExtension from './utils/findExtension';
-import { TestCase } from './models';
+import { TestCase } from './models/models';
 
 interface RunnerOpts {
     id: string;
@@ -73,7 +74,10 @@ export default class Runner {
             },
         });
 
+        const t0 = performance.now();
         await container.start();
+        const t1 = performance.now();
+        logger.log({ level: 'info', message: `Took ${t1 - t0} seconds` });
 
         const [outputStream, errorStream] = await containerLogs(container);
 
