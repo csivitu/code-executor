@@ -1,1 +1,1 @@
-(cat in1.txt | python3 code.py) > output1.txt
+(cat /app/in1.txt | python3 /app/code.py) > /app/output1.txt

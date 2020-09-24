@@ -14,7 +14,7 @@ export default class Builder {
         languages.forEach(async (lang) => {
             const stream: NodeJS.ReadableStream = await this.docker.buildImage({
                 context: path.join(__dirname, 'langs', lang),
-                src: ['Dockerfile'],
+                src: ['Dockerfile', 'start.sh'],
             }, {
                 t: `${lang.toLowerCase()}-runner`,
             });
