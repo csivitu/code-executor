@@ -24,7 +24,9 @@ export default class Builder {
                 logger.log({ level: 'info', message: chunk });
             });
             await new Promise((resolve, reject) => {
-                this.docker.modem.followProgress(stream, (err: Error, res: Array<object>) => err ? reject(err) : resolve(res));
+                this.docker.modem.followProgress(stream, (err:
+                Error, res:
+                Array<object>) => (err ? reject(err) : resolve(res)));
             });
         });
     }

@@ -7,7 +7,7 @@ import decodeBase64 from './utils/decodeBase64';
 import containerLogs from './utils/containerLogs';
 import logger from './utils/logger';
 import findExtension from './utils/findExtension';
-import { TestCase } from './models/models';
+import { TestCase, Result, Tests } from './models/models';
 
 interface RunnerOpts {
     id: string;
@@ -60,7 +60,7 @@ export default class Runner {
             folderPath,
             language,
         }: RunnerOpts,
-    ): Promise<object> {
+    ): Promise<Result> {
         const Path = await Runner.saveCode(folderPath, code, testCases, base64, language);
 
         const container = await this.docker.createContainer({
@@ -82,9 +82,11 @@ export default class Runner {
 
         const [outputStream, errorStream] = await containerLogs(container);
 
+        const tests: Tests[] = [];
+
         const result = {
-            output: outputStream,
-            error: errorStream,
+            id,
+            tests,
         };
 
         outputStream.on('data', (chunk) => {

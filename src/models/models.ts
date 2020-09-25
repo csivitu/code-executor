@@ -12,7 +12,6 @@ export interface Code {
 }
 
 export interface Tests {
-    id: string;
     input: string;
     expectedOutput: string;
     obtainedOutput: string;
@@ -21,5 +20,6 @@ export interface Tests {
 }
 
 export interface Result {
+    id: string;
     tests: Tests[];
 }

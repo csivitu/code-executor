@@ -30,5 +30,5 @@ main();
 codeExecutor.on('completed', (job, result) => {
     console.log(job);
     console.log(result);
-    console.log("hello");
+    console.log('hello');
 });

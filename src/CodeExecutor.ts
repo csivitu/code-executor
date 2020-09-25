@@ -1,4 +1,4 @@
-import Bull, {Job} from 'bull';
+import Bull, { Job } from 'bull';
 
 import { Code } from './models/models';
 
@@ -13,7 +13,7 @@ export default class CodeExecutor {
         await this.queue.add(codeOptions);
     }
 
-    on(event: string , cb: (job: Job, result: object) => void) {
+    on(event: string, cb: (job: Job, result: object) => void) {
         this.queue.on(event, cb);
     }
 }
