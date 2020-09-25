@@ -6,7 +6,9 @@ import { Worker } from '../src/CodeExecutor';
 const worker = new Worker('myexecutor', 'redis://127.0.0.1:6379');
 
 async function main() {
+    // array of languages is optional argument
     await worker.build();
+
     worker.start();
 }
 

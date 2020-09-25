@@ -38,8 +38,8 @@ export default class Worker {
         return result;
     }
 
-    async build() {
-        await this.builder.build();
+    async build(langs?: Array<string>) {
+        await this.builder.build(langs);
     }
 
     start() {

@@ -1,7 +1,7 @@
 import Docker from 'dockerode';
 import path from 'path';
-import * as fs from 'fs';
 import logger from './utils/logger';
+import { extension } from './utils/findExtension';
 
 export default class Builder {
     private docker: Docker;
@@ -10,24 +10,27 @@ export default class Builder {
         this.docker = docker;
     }
 
-    async build(): Promise<void> {
-        const languages = fs.readdirSync(path.join(__dirname, 'langs'));
+    async build(langs?: Array<string>): Promise<void> {
+        const supportedLanguages = Object.keys(extension);
+        const languages = langs || supportedLanguages;
         languages.forEach(async (lang) => {
-            const stream: NodeJS.ReadableStream = await this.docker.buildImage({
-                context: path.join(__dirname, 'langs', lang),
-                src: ['Dockerfile', 'start.sh'],
-            }, {
-                t: `${lang.toLowerCase()}-runner`,
-            });
+            if (supportedLanguages.includes(lang)) {
+                const stream: NodeJS.ReadableStream = await this.docker.buildImage({
+                    context: path.join(__dirname, 'langs', lang),
+                    src: ['Dockerfile', 'start.sh'],
+                }, {
+                    t: `${lang.toLowerCase()}-runner`,
+                });
 
-            stream.on('data', (chunk) => {
-                logger.log({ level: 'info', message: chunk });
-            });
-            await new Promise((resolve, reject) => {
-                this.docker.modem.followProgress(stream, (err:
-                Error, res:
-                Array<object>) => (err ? reject(err) : resolve(res)));
-            });
+                stream.on('data', (chunk) => {
+                    logger.log({ level: 'info', message: chunk });
+                });
+                await new Promise((resolve, reject) => {
+                    this.docker.modem.followProgress(stream, (err:
+                    Error, res:
+                    Array<object>) => (err ? reject(err) : resolve(res)));
+                });
+            }
         });
     }
 }
