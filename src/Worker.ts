@@ -1,5 +1,5 @@
 import Docker from 'dockerode';
-import Bull, { Job } from 'bull';
+import Bull from 'bull';
 import Runner from './Runner';
 import Builder from './Builder';
 
@@ -14,8 +14,6 @@ export default class Worker {
 
     private queue: Bull.Queue;
 
-    private job: Bull.Job;
-
     private folderPath?: string;
 
     constructor(name: string, redis: string, folderPath?: string) {
@@ -23,12 +21,12 @@ export default class Worker {
         this.runner = new Runner(this.docker);
         this.builder = new Builder(this.docker);
         this.queue = new Bull(name, redis);
-        this.folderPath = folderPath || '/tmp';
+        this.folderPath = folderPath || '/tmp/code-exec';
     }
 
-    private async work(codeOptions: Code): Promise<void> {
+    private async work(codeOptions: Code): Promise<object> {
         const tag = `${codeOptions.language.toLowerCase()}-runner`;
-        await this.runner.run({
+        const result = await this.runner.run({
             tag,
             id: codeOptions.id,
             code: codeOptions.code,
@@ -37,6 +35,7 @@ export default class Worker {
             base64: codeOptions.base64 || false,
             language: codeOptions.language,
         });
+        return result;
     }
 
     async build() {
@@ -45,22 +44,8 @@ export default class Worker {
 
     start() {
         this.queue.process(async (job, done) => {
-            await this.work(job.data);
-            this.progress(job);
-            done();
+            const result = await this.work(job.data);
+            done(null, result);
         });
-    }
-
-    progress(job: Job) {
-        let progress = 0;
-        for (let i = 0; i < 100; i += 1) {
-            this.work(job.data);
-            progress += 10;
-            job.progress(progress);
-        }
-    }
-
-    result(job: Job) {
-        return this.work(job.data);
     }
 }

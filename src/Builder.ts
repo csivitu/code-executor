@@ -1,6 +1,7 @@
 import Docker from 'dockerode';
 import path from 'path';
 import * as fs from 'fs';
+import logger from './utils/logger';
 
 export default class Builder {
     private docker: Docker;
@@ -19,7 +20,12 @@ export default class Builder {
                 t: `${lang.toLowerCase()}-runner`,
             });
 
-            stream.pipe(process.stdout);
+            stream.on('data', (chunk) => {
+                logger.log({ level: 'info', message: chunk });
+            });
+            await new Promise((resolve, reject) => {
+                this.docker.modem.followProgress(stream, (err: Error, res: Array<object>) => err ? reject(err) : resolve(res));
+            });
         });
     }
 }

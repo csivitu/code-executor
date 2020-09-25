@@ -52,6 +52,7 @@ export default class Runner {
 
     async run(
         {
+            id,
             tag,
             code,
             testCases,
@@ -64,7 +65,7 @@ export default class Runner {
 
         const container = await this.docker.createContainer({
             Image: tag,
-            Cmd: ['bash', '/start.sh'],
+            Cmd: ['bash', '/start.sh', `${testCases.length}`],
             HostConfig: {
                 Mounts: [{
                     Source: Path,
@@ -77,18 +78,22 @@ export default class Runner {
         const t0 = performance.now();
         await container.start();
         const t1 = performance.now();
-        logger.log({ level: 'info', message: `Took ${t1 - t0} seconds` });
+        logger.log({ level: 'info', message: `Process ${id} took ${t1 - t0} milli seconds` });
 
         const [outputStream, errorStream] = await containerLogs(container);
 
         const result = {
-            output: outputStream.on('data', (chunk) => {
-                logger.log({ level: 'info', message: chunk });
-            }),
-            error: errorStream.on('data', (chunk) => {
-                logger.log({ level: 'error', message: chunk });
-            }),
+            output: outputStream,
+            error: errorStream,
         };
+
+        outputStream.on('data', (chunk) => {
+            logger.log({ level: 'info', message: chunk });
+        });
+
+        errorStream.on('data', (chunk) => {
+            logger.log({ level: 'error', message: chunk });
+        });
 
         return result;
     }
