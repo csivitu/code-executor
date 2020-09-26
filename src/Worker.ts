@@ -37,6 +37,7 @@ export default class Worker {
             folderPath: this.folderPath,
             base64: codeOptions.base64 || false,
             language: codeOptions.language,
+            timeout: codeOptions.timeout,
         });
         return result;
     }

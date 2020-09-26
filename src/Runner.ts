@@ -7,7 +7,11 @@ import generateFolder from './utils/generateFolder';
 import decodeBase64 from './utils/decodeBase64';
 import logger from './utils/logger';
 import findExtension from './utils/findExtension';
-import { TestCase, Result, Tests } from './models/models';
+import {
+    TestCase,
+    Result,
+    Tests,
+} from './models/models';
 import getOutput from './utils/getOutput';
 
 interface RunnerOpts {
@@ -18,8 +22,8 @@ interface RunnerOpts {
     base64: boolean;
     folderPath: string;
     language: string;
+    timeout: number;
 }
-
 export default class Runner {
     private docker: Docker;
 
@@ -33,13 +37,13 @@ export default class Runner {
         testCases: TestCase[],
         base64: boolean,
         language: string,
-    ): Promise<string> {
+    ): Promise < string > {
         const folder = await generateFolder(folderPath);
         const extension = findExtension(language);
-
         const promisesToKeep = [(base64)
             ? writeToFile(path.join(folder, `code.${extension}`), decodeBase64(code))
-            : writeToFile(path.join(folder, `code.${extension}`), code)];
+            : writeToFile(path.join(folder, `code.${extension}`), code),
+        ];
         for (let i = 0; i < testCases.length; i += 1) {
             const [input, output] = (base64)
                 ? [decodeBase64(testCases[i].input), decodeBase64(testCases[i].output)]
@@ -51,22 +55,20 @@ export default class Runner {
         return folder;
     }
 
-    async run(
-        {
-            id,
-            tag,
-            code,
-            testCases,
-            base64,
-            folderPath,
-            language,
-        }: RunnerOpts,
-    ): Promise<Result> {
+    async run({
+        id,
+        tag,
+        code,
+        testCases,
+        base64,
+        folderPath,
+        language,
+        timeout,
+    }: RunnerOpts): Promise < Result > {
         const Path = await Runner.saveCode(folderPath, code, testCases, base64, language);
-
         const container = await this.docker.createContainer({
             Image: tag,
-            Cmd: ['bash', '/start.sh', `${testCases.length}`, '3'],
+            Cmd: ['bash', '/start.sh', `${testCases.length}`, `${timeout}`],
             HostConfig: {
                 Mounts: [{
                     Source: Path,
@@ -75,23 +77,20 @@ export default class Runner {
                 }],
             },
         });
-
         await container.start();
         const t0 = performance.now();
-
         await container.wait();
         const t1 = performance.now();
-
-        logger.log({ level: 'info', message: `Process ${id} took ${t1 - t0} milli seconds` });
-
+        logger.log({
+            level: 'info',
+            message: `Process ${id} took ${t1 - t0} milli seconds`,
+        });
         container.remove();
-
         const [output, runTime, error, exitCodes] = await getOutput(Path, testCases.length);
-
-        del(Path, { force: true });
-
+        del(Path, {
+            force: true,
+        });
         const tests: Tests[] = [];
-
         for (let i = 0; i < testCases.length; i += 1) {
             const expectedOutput = testCases[i].output;
             const obtainedOutput = output[i].toString();
@@ -115,12 +114,10 @@ export default class Runner {
                 runTime: (parseInt(time[1], 10) - parseInt(time[0], 10)) / 1000000000,
             });
         }
-
         const result = {
             id,
             tests,
         };
-
         return result;
     }
 }

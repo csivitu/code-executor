@@ -9,6 +9,7 @@ export interface Code {
     language: string;
     base64?: boolean;
     testCases: TestCase[];
+    timeout: number;
 }
 
 export interface Tests {

@@ -17,6 +17,7 @@ const inputs = [{
             output: 'hello\n',
         },
     ],
+    timeout: 2,
 }];
 
 function main() {
@@ -28,5 +29,5 @@ function main() {
 main();
 
 codeExecutor.onComplete((outcome) => {
-    console.log(JSON.stringify(outcome));
+    console.log(JSON.stringify(outcome, null, 4));
 });
