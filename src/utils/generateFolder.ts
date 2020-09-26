@@ -5,7 +5,7 @@ import randomstring from 'randomstring';
 export default async function generateFolder(folderPath: string): Promise<string> {
     const ultimatePath = path.join(folderPath, randomstring.generate(10));
     return new Promise((resolve, reject) => {
-        fs.mkdir(ultimatePath, (err) => {
+        fs.mkdir(ultimatePath, { recursive: true }, (err) => {
             if (err) {
                 reject(err);
             } else {

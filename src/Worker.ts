@@ -12,7 +12,9 @@ export default class Worker {
 
     private builder: Builder;
 
-    private queue: Bull.Queue;
+    private sendQueue: Bull.Queue;
+
+    private recieveQueue: Bull.Queue;
 
     private folderPath?: string;
 
@@ -20,7 +22,8 @@ export default class Worker {
         this.docker = new Docker();
         this.runner = new Runner(this.docker);
         this.builder = new Builder(this.docker);
-        this.queue = new Bull(name, redis);
+        this.sendQueue = new Bull(`${name}Send`, redis);
+        this.recieveQueue = new Bull(`${name}Recieve`, redis);
         this.folderPath = folderPath || '/tmp/code-exec';
     }
 
@@ -43,9 +46,10 @@ export default class Worker {
     }
 
     start() {
-        this.queue.process(async (job, done) => {
+        this.sendQueue.process(async (job, done) => {
             const result = await this.work(job.data);
-            done(null, result);
+            await this.recieveQueue.add({ input: job.data, result });
+            done();
         });
     }
 }

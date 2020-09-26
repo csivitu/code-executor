@@ -1,20 +1,26 @@
-import Bull, { Job } from 'bull';
+import Bull from 'bull';
 
 import { Code } from './models/models';
 
 export default class CodeExecutor {
-    private queue: Bull.Queue;
+    private sendQueue: Bull.Queue;
+
+    private recieveQueue: Bull.Queue;
 
     constructor(name: string, redis: string) {
-        this.queue = new Bull(name, redis);
+        this.sendQueue = new Bull(`${name}Send`, redis);
+        this.recieveQueue = new Bull(`${name}Recieve`, redis);
     }
 
     async add(codeOptions: Code): Promise<void> {
-        await this.queue.add(codeOptions);
+        await this.sendQueue.add(codeOptions);
     }
 
-    on(event: string, cb: (job: Job, result: object) => void) {
-        this.queue.on(event, cb);
+    onComplete(cb: (outcome: object) => void) {
+        this.recieveQueue.process((job, done) => {
+            cb(job.data);
+            done();
+        });
     }
 }
 
