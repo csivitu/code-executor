@@ -15,7 +15,6 @@ export default class Builder {
         const languages = langs || supportedLanguages;
         languages.forEach(async (lang) => {
             if (supportedLanguages.includes(lang)) {
-                logger.log({ level: 'info', message: `building ${lang}` });
                 const stream: NodeJS.ReadableStream = await this.docker.buildImage({
                     context: path.join(__dirname, 'langs', lang),
                     src: ['Dockerfile', 'start.sh'],
@@ -28,6 +27,7 @@ export default class Builder {
                     Error, res:
                     Array<object>) => (err ? reject(err) : resolve(res)));
                 });
+                logger.log({ level: 'info', message: `built ${lang} successfully` });
             } else {
                 logger.log({ level: 'info', message: `${lang} is not supported` });
             }
