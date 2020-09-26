@@ -14,8 +14,8 @@ export default class Builder {
         const supportedLanguages = Object.keys(extension);
         const languages = langs || supportedLanguages;
         languages.forEach(async (lang) => {
-            logger.log({ level: 'info', message: `building ${lang}` });
             if (supportedLanguages.includes(lang)) {
+                logger.log({ level: 'info', message: `building ${lang}` });
                 const stream: NodeJS.ReadableStream = await this.docker.buildImage({
                     context: path.join(__dirname, 'langs', lang),
                     src: ['Dockerfile', 'start.sh'],
@@ -23,14 +23,13 @@ export default class Builder {
                     t: `${lang.toLowerCase()}-runner`,
                 });
 
-                stream.on('data', (chunk) => {
-                    logger.log({ level: 'debug', message: chunk });
-                });
                 await new Promise((resolve, reject) => {
                     this.docker.modem.followProgress(stream, (err:
                     Error, res:
                     Array<object>) => (err ? reject(err) : resolve(res)));
                 });
+            } else {
+                logger.log({ level: 'info', message: `${lang} is not supported` });
             }
         });
     }

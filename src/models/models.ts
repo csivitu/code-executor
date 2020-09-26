@@ -16,7 +16,9 @@ export interface Tests {
     expectedOutput: string;
     obtainedOutput: string;
     remarks: string;
-    status: string;
+    exitCode: number;
+    runTime: number;
+    error: string;
 }
 
 export interface Result {
