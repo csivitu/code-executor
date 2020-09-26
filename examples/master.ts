@@ -14,7 +14,7 @@ const inputs = [{
     testCases: [
         {
             input: '',
-            output: 'hello',
+            output: 'hello\n',
         },
     ],
 }];
@@ -28,5 +28,5 @@ function main() {
 main();
 
 codeExecutor.onComplete((outcome) => {
-    console.log(outcome);
+    console.log(JSON.stringify(outcome));
 });

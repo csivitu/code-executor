@@ -1,13 +1,15 @@
 import Docker from 'dockerode';
 import path from 'path';
 import { performance } from 'perf_hooks';
+import del from 'del';
 import writeToFile from './utils/writeToFile';
 import generateFolder from './utils/generateFolder';
 import decodeBase64 from './utils/decodeBase64';
-import containerLogs from './utils/containerLogs';
 import logger from './utils/logger';
 import findExtension from './utils/findExtension';
 import { TestCase, Result, Tests } from './models/models';
+import containerLogs from './utils/containerLogs';
+import getOutput from './utils/getOutput';
 
 interface RunnerOpts {
     id: string;
@@ -75,27 +77,47 @@ export default class Runner {
             },
         });
 
-        const t0 = performance.now();
         await container.start();
+        const t0 = performance.now();
+        const status = await container.wait();
         const t1 = performance.now();
+
         logger.log({ level: 'info', message: `Process ${id} took ${t1 - t0} milli seconds` });
 
         const [outputStream, errorStream] = await containerLogs(container);
 
-        const tests: Tests[] = [];
-
-        const result = {
-            id,
-            tests,
-        };
-
         outputStream.on('data', (chunk) => {
-            logger.log({ level: 'info', message: chunk });
+            logger.log({ level: 'debug', message: chunk });
         });
 
         errorStream.on('data', (chunk) => {
             logger.log({ level: 'error', message: chunk });
         });
+
+        container.remove();
+
+        const output = await getOutput(Path, testCases.length);
+
+        del(Path, { force: true });
+
+        const tests: Tests[] = [];
+
+        for (let i = 0; i < testCases.length; i += 1) {
+            const expectedOutput = testCases[i].output;
+            const obtainedOutput = output[i].toString();
+            tests.push({
+                input: testCases[i].input,
+                expectedOutput,
+                obtainedOutput,
+                remarks: expectedOutput === obtainedOutput ? 'pass' : 'fail',
+                status: status.StatusCode,
+            });
+        }
+
+        const result = {
+            id,
+            tests,
+        };
 
         return result;
     }
