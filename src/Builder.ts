@@ -13,29 +13,31 @@ export default class Builder {
     async build(langs?: Array<string>): Promise<void> {
         const supportedLanguages = Object.keys(extension);
         const languages = langs || supportedLanguages;
-        languages.forEach(async (lang) => {
+        const streams: Promise<NodeJS.ReadableStream>[] = [];
+        languages.forEach((lang) => {
             if (supportedLanguages.includes(lang)) {
                 logger.log({ level: 'info', message: `building ${lang}` });
-                const stream: NodeJS.ReadableStream = await this.docker.buildImage({
+                streams.push(this.docker.buildImage({
                     context: path.join(__dirname, 'langs', lang),
                     src: ['Dockerfile', 'start.sh'],
                 }, {
                     t: `${lang.toLowerCase()}-runner`,
-                });
-
-                stream.on('data', (chunk) => {
-                    logger.log({ level: 'info', message: chunk });
-                });
-
-                await new Promise((resolve, reject) => {
-                    this.docker.modem.followProgress(stream, (err:
-                    Error, res:
-                    Array<object>) => (err ? reject(err) : resolve(res)));
-                });
-                logger.log({ level: 'info', message: `built ${lang} successfully` });
+                }));
             } else {
-                logger.log({ level: 'info', message: `${lang} is not supported` });
+                logger.log({ level: 'error', message: `${lang} is not supported` });
             }
         });
+        const progress: Promise<object>[] = [];
+        (await Promise.all(streams)).forEach((stream) => {
+            stream.on('data', (chunk) => {
+                logger.log({ level: 'debug', message: chunk });
+            });
+            progress.push(new Promise((resolve, reject) => {
+                this.docker.modem.followProgress(stream, (err:
+                Error, res:
+                Array<object>) => (err ? reject(err) : resolve(res)));
+            }));
+        });
+        await Promise.all(progress);
     }
 }

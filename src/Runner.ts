@@ -77,6 +77,10 @@ export default class Runner {
                 }],
             },
         });
+        logger.log({
+            level: 'info',
+            message: `Starting process ${id}`,
+        });
         const t0 = performance.now();
         await container.start();
         await container.wait();
