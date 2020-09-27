@@ -49,8 +49,16 @@ export default class Worker {
     start() {
         this.sendQueue.process(async (job, done) => {
             const result = await this.work(job.data);
-            await this.recieveQueue.add({ input: job.data, result });
+            await this.recieveQueue.add(result);
             done();
         });
+    }
+
+    pause() {
+        this.sendQueue.pause();
+    }
+
+    resume() {
+        this.sendQueue.resume();
     }
 }
