@@ -83,7 +83,7 @@ export default class Runner {
         const t1 = performance.now();
         logger.log({
             level: 'info',
-            message: `Process ${id} took ${t1 - t0} milli seconds`,
+            message: `Process ${id} completed in ${t1 / 1000 - t0 / 1000} seconds`,
         });
         container.remove();
         const [output, runTime, error, exitCodes] = await getOutput(Path, testCases.length);
