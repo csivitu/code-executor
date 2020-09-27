@@ -9,7 +9,7 @@ const worker = new Worker('myExecutor', 'redis://127.0.0.1:6379');
 
 async function main() {
     /* array of languages is optional argument */
-    await worker.build(['Python']);
+    await worker.build(['Python', 'Bash']);
 
     worker.start();
 

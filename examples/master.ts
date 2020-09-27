@@ -10,8 +10,20 @@ const codeExecutor = new CodeExecutor('myExecutor', 'redis://127.0.0.1:6379');
 * */
 const inputs = [{
     id: '1',
-    language: 'python',
+    language: 'Python',
     code: 'print("hello")',
+    testCases: [
+        {
+            input: '',
+            output: 'hello\n',
+        },
+    ],
+    timeout: 2,
+},
+{
+    id: '2',
+    language: 'Bash',
+    code: 'echo hello',
     testCases: [
         {
             input: '',
