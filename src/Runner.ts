@@ -77,8 +77,8 @@ export default class Runner {
                 }],
             },
         });
-        await container.start();
         const t0 = performance.now();
+        await container.start();
         await container.wait();
         const t1 = performance.now();
         logger.log({

@@ -15,11 +15,16 @@ export default class Builder {
         const languages = langs || supportedLanguages;
         languages.forEach(async (lang) => {
             if (supportedLanguages.includes(lang)) {
+                logger.log({ level: 'info', message: `building ${lang}` });
                 const stream: NodeJS.ReadableStream = await this.docker.buildImage({
                     context: path.join(__dirname, 'langs', lang),
                     src: ['Dockerfile', 'start.sh'],
                 }, {
                     t: `${lang.toLowerCase()}-runner`,
+                });
+
+                stream.on('data', (chunk) => {
+                    logger.log({ level: 'info', message: chunk });
                 });
 
                 await new Promise((resolve, reject) => {
