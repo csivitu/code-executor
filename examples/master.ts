@@ -1,5 +1,6 @@
 /* eslint-disable no-console */
 import CodeExecutor from '../src/CodeExecutor';
+import logger from '../src/utils/logger';
 
 const codeExecutor = new CodeExecutor('myExecutor', 'redis://127.0.0.1:6379');
 
@@ -8,10 +9,16 @@ const codeExecutor = new CodeExecutor('myExecutor', 'redis://127.0.0.1:6379');
   * output and code are encoded in base64,
   * default is false
 * */
+
+const pythonCode = `
+import time
+time.sleep(1)
+print('hello')
+`;
+
 const inputs = [{
-    id: '1',
     language: 'Python',
-    code: 'print("hello")',
+    code: pythonCode,
     testCases: [
         {
             input: '',
@@ -21,7 +28,6 @@ const inputs = [{
     timeout: 2,
 },
 {
-    id: '2',
     language: 'Bash',
     code: 'echo hello',
     testCases: [
@@ -33,14 +39,12 @@ const inputs = [{
     timeout: 2,
 }];
 
-function main() {
-    inputs.forEach(async (input) => {
-        await codeExecutor.add(input);
-    });
+async function main() {
+    const results = await Promise.all(
+        inputs.map((input) => codeExecutor.runCode(input)),
+    );
+    logger.info(results);
+    codeExecutor.stop();
 }
 
 main();
-
-codeExecutor.onComplete((outcome) => {
-    console.log(outcome);
-});
