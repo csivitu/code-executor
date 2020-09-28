@@ -1,9 +1,11 @@
 import Docker from 'dockerode';
 import Bull from 'bull';
+
 import Runner from './Runner';
 import Builder from './Builder';
 
-import { Code } from './models';
+import { Code, Result } from './models/models';
+import logger from './utils/logger';
 
 export default class Worker {
     private runner: Runner;
@@ -21,29 +23,45 @@ export default class Worker {
         this.runner = new Runner(this.docker);
         this.builder = new Builder(this.docker);
         this.queue = new Bull(name, redis);
-        this.folderPath = folderPath || '/tmp';
+        this.folderPath = folderPath || '/tmp/code-exec';
     }
 
-    private async work(codeOptions: Code): Promise<void> {
+    private async work(codeOptions: Code): Promise<Result> {
         const tag = `${codeOptions.language.toLowerCase()}-runner`;
-        await this.runner.run({
+
+        const result = await this.runner.run({
             tag,
+            id: codeOptions.id,
             code: codeOptions.code,
             testCases: codeOptions.testCases,
             folderPath: this.folderPath,
             base64: codeOptions.base64 || false,
             language: codeOptions.language,
+            timeout: codeOptions.timeout,
         });
+
+        return result;
     }
 
-    async build() {
-        await this.builder.build();
+    async build(langs?: Array<string>) {
+        await this.builder.build(langs);
     }
 
     start() {
         this.queue.process(async (job, done) => {
-            await this.work(job.data);
-            done();
+            logger.info(`Received: ${job.data.id}`);
+            const result = await this.work(job.data);
+
+            logger.debug(JSON.stringify(result));
+            done(null, result);
         });
+    }
+
+    pause() {
+        this.queue.pause();
+    }
+
+    resume() {
+        this.queue.resume();
     }
 }
