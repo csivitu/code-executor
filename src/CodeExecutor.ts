@@ -1,26 +1,45 @@
 import Bull from 'bull';
+import { v4 as uuid } from 'uuid';
 
-import { Code } from './models/models';
+import { CodeParams, Result } from './models/models';
+import logger from './utils/logger';
 
 export default class CodeExecutor {
-    private sendQueue: Bull.Queue;
+    private queue: Bull.Queue;
 
-    private recieveQueue: Bull.Queue;
+    private jobs: Map<string, { resolve: Function, reject: Function }>;
 
     constructor(name: string, redis: string) {
-        this.sendQueue = new Bull(`${name}Send`, redis);
-        this.recieveQueue = new Bull(`${name}Recieve`, redis);
-    }
+        this.queue = new Bull(name, redis);
 
-    async add(codeOptions: Code): Promise<void> {
-        await this.sendQueue.add(codeOptions);
-    }
+        this.jobs = new Map();
 
-    onComplete(cb: (outcome: object) => void) {
-        this.recieveQueue.process((job, done) => {
-            cb(job.data);
-            done();
+        this.queue.on('global:completed', (_job: Bull.Job, result: string) => {
+            const { id } = <Result>JSON.parse(result);
+
+            logger.debug(`Running on complete for id: ${id}`);
+
+            const currentJob = this.jobs.get(id);
+            if (currentJob) {
+                currentJob.resolve(result);
+                this.jobs.delete(id);
+            }
         });
+    }
+
+    async runCode(codeOptions: CodeParams): Promise<void> {
+        const id = uuid();
+        const codeObject = { ...codeOptions, id };
+        logger.info(`Running code with id: ${id}`);
+
+        return new Promise((resolve, reject) => {
+            this.jobs.set(id, { resolve, reject });
+            this.queue.add(codeObject);
+        });
+    }
+
+    stop() {
+        this.queue.close();
     }
 }
 
