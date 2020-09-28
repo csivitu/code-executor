@@ -77,29 +77,29 @@ export default class Runner {
                 }],
             },
         });
-        logger.log({
-            level: 'info',
-            message: `Starting process ${id}`,
-        });
+
+        logger.info(`Starting process ${id}`);
+
         const t0 = performance.now();
         await container.start();
         await container.wait();
         const t1 = performance.now();
-        logger.log({
-            level: 'info',
-            message: `Process ${id} completed in ${t1 / 1000 - t0 / 1000} seconds`,
-        });
+
+        logger.info(`Process ${id} completed in ${t1 / 1000 - t0 / 1000} seconds`);
+
         container.remove();
         const [output, runTime, error, exitCodes] = await getOutput(Path, testCases.length);
         del(Path, {
             force: true,
         });
+
         const tests: Tests[] = [];
         for (let i = 0; i < testCases.length; i += 1) {
             const expectedOutput = testCases[i].output;
             const obtainedOutput = output[i].toString();
             const time = runTime[i].toString().split('\n');
             const exitCode = parseInt(exitCodes[i].toString(), 10);
+
             let remarks;
             if (exitCode === 124) {
                 remarks = 'Time limit exceeded';
@@ -108,6 +108,7 @@ export default class Runner {
             } else {
                 remarks = 'Error';
             }
+
             tests.push({
                 input: testCases[i].input,
                 expectedOutput,
@@ -118,10 +119,12 @@ export default class Runner {
                 runTime: (parseInt(time[1], 10) - parseInt(time[0], 10)) / 1000000000,
             });
         }
+
         const result = {
             id,
             tests,
         };
+
         return result;
     }
 }
