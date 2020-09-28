@@ -14,9 +14,11 @@ export default class Builder {
         const supportedLanguages = Object.keys(extension);
         const languages = langs || supportedLanguages;
         const streams: Promise<NodeJS.ReadableStream>[] = [];
+
         languages.forEach((lang) => {
             if (supportedLanguages.includes(lang)) {
-                logger.log({ level: 'info', message: `building ${lang}` });
+                logger.info(`Building ${lang}...`);
+
                 streams.push(this.docker.buildImage({
                     context: path.join(__dirname, 'langs', lang),
                     src: ['Dockerfile', 'start.sh'],
@@ -24,20 +26,32 @@ export default class Builder {
                     t: `${lang.toLowerCase()}-runner`,
                 }));
             } else {
-                logger.log({ level: 'error', message: `${lang} is not supported` });
+                logger.error(`${lang} is not supported`);
             }
         });
+
         const progress: Promise<object>[] = [];
+
         (await Promise.all(streams)).forEach((stream) => {
             stream.on('data', (chunk) => {
-                logger.log({ level: 'debug', message: chunk });
+                logger.debug(chunk);
             });
+
             progress.push(new Promise((resolve, reject) => {
-                this.docker.modem.followProgress(stream, (err:
-                Error, res:
-                Array<object>) => (err ? reject(err) : resolve(res)));
+                this.docker.modem.followProgress(stream, (
+                    err: Error,
+                    res: Array<object>,
+                ) => {
+                    if (err) {
+                        reject(err);
+                    } else {
+                        resolve(res);
+                    }
+                });
             }));
         });
+
         await Promise.all(progress);
+        logger.info('Built containers successfully');
     }
 }
