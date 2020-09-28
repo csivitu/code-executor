@@ -1,9 +1,11 @@
 import Docker from 'dockerode';
 import Bull from 'bull';
+
 import Runner from './Runner';
 import Builder from './Builder';
 
-import { Code } from './models/models';
+import { Code, Result } from './models/models';
+import logger from './utils/logger';
 
 export default class Worker {
     private runner: Runner;
@@ -12,9 +14,7 @@ export default class Worker {
 
     private builder: Builder;
 
-    private sendQueue: Bull.Queue;
-
-    private recieveQueue: Bull.Queue;
+    private queue: Bull.Queue;
 
     private folderPath?: string;
 
@@ -22,13 +22,13 @@ export default class Worker {
         this.docker = new Docker();
         this.runner = new Runner(this.docker);
         this.builder = new Builder(this.docker);
-        this.sendQueue = new Bull(`${name}Send`, redis);
-        this.recieveQueue = new Bull(`${name}Recieve`, redis);
+        this.queue = new Bull(name, redis);
         this.folderPath = folderPath || '/tmp/code-exec';
     }
 
-    private async work(codeOptions: Code): Promise<object> {
+    private async work(codeOptions: Code): Promise<Result> {
         const tag = `${codeOptions.language.toLowerCase()}-runner`;
+
         const result = await this.runner.run({
             tag,
             id: codeOptions.id,
@@ -39,6 +39,7 @@ export default class Worker {
             language: codeOptions.language,
             timeout: codeOptions.timeout,
         });
+
         return result;
     }
 
@@ -47,18 +48,20 @@ export default class Worker {
     }
 
     start() {
-        this.sendQueue.process(async (job, done) => {
+        this.queue.process(async (job, done) => {
+            logger.info(`Received: ${job.data.id}`);
             const result = await this.work(job.data);
-            await this.recieveQueue.add(result);
-            done();
+
+            logger.debug(JSON.stringify(result));
+            done(null, result);
         });
     }
 
     pause() {
-        this.sendQueue.pause();
+        this.queue.pause();
     }
 
     resume() {
-        this.sendQueue.resume();
+        this.queue.resume();
     }
 }
