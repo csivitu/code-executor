@@ -3,13 +3,16 @@ export interface TestCase {
     output: string;
 }
 
-export interface Code {
-    id: string;
+export interface CodeParams {
     code: string;
     language: string;
     base64?: boolean;
     testCases: TestCase[];
     timeout: number;
+}
+
+export interface Code extends CodeParams {
+    id: string;
 }
 
 export interface Tests {
