@@ -56,7 +56,7 @@
 **code-executor** allows you to run arbitrary code in scalable, secure containers and returns metrics for each test case, such as the time taken, errors occured (if any), and the status (pass/fail).
 <br />
 
-This library uses a master-slave structure to run programs, which makes it scalable across servers as long as they use the same `Redis` instance. Visit the [usage](#usage) section to learn more.
+This library uses a master-worker structure to run programs, which makes it scalable across servers as long as they use the same `Redis` instance. Visit the [usage](#usage) section to learn more.
 
 
 ### Built With
@@ -120,7 +120,7 @@ main();
 
 ### Brief Description
 
-- As mentioned before, `code-executor` is built using the master-slave strategy. Therefore, there is a `master` which is responsible for assigning work to a set of `workers`. These workers respond to the master on completing their tasks. In the case of the Competitive Coding website, the backend of the website is the `master`, whereas you can run separate `Node.js` scripts for spawning workers (a CLI is coming soon!).
+- As mentioned before, `code-executor` is built using the master-worker strategy. Therefore, there is a `master` which is responsible for assigning work to a set of `workers`. These workers respond to the master on completing their tasks. In the case of the Competitive Coding website, the backend of the website is the `master`, whereas you can run separate `Node.js` scripts for spawning workers (a CLI is coming soon!).
 
 - The backend assigns jobs to the workers through a `queue`, which is stored in the `Redis` instance and managed by the `bull` library. This abstracts process synchronization and ensures that no two workers are working on the same job. Once the workers finish executing the code, they respond to the master, and the backend can respond with success or failure, and other details returned by the worker.
 
