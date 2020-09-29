@@ -11,10 +11,10 @@
     <img src="https://csivit.com/images/favicon.png" alt="Logo" width="80">
   </a>
 
-  <h3 align="center">YOUR_TITLE</h3>
+  <h3 align="center">code-executor</h3>
 
   <p align="center">
-    YOUR_SHORT_DESCRIPTION
+    A library to execute code against test cases in various languages and obtain relevant results.
     <br />
     <a href="https://github.com/csivitu/repo"><strong>Explore the docs »</strong></a>
     <br />
