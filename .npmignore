@@ -12,3 +12,4 @@ config
 .gitignore
 tsconfig.json
 src
+.all-contributorsrc
