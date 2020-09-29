@@ -1,15 +1,23 @@
 {
   "name": "code-executor",
-  "version": "0.0.1",
+  "version": "0.1.4",
   "description": "A CLI/library to execute code against test cases in various languages and obtain relevant results.",
-  "main": "dist/codeExecutor.js",
+  "main": "dist/src/CodeExecutor.js",
+  "keywords": [
+    "code-executor",
+    "executor",
+    "docker",
+    "sandbox",
+    "synchronization",
+    "parallel-execution",
+    "code-runner"
+  ],
   "scripts": {
     "build": "npm run clean && tsc",
     "clean": "rimraf ./dist",
     "test": "mocha --config test/.mocharc.json test/**/*.ts",
     "lint": "eslint \"src/**/*.{ts,js,jsx}\" \"test/**/*.ts\" \"examples/**/*.{ts,js}\"",
     "lint:fix": "eslint --fix \"src/**/*.{ts,js,jsx}\" \"test/**/*.ts\" \"examples/**/*.{ts,js}\"",
-    "start": "ts-node src/codeExecutor.ts",
     "prepare": "npm run build"
   },
   "repository": {
