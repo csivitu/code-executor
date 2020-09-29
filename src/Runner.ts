@@ -41,8 +41,8 @@ export default class Runner {
         const folder = await generateFolder(folderPath);
         const extension = findExtension(language);
         const promisesToKeep = [(base64)
-            ? writeToFile(path.join(folder, `code.${extension}`), decodeBase64(code))
-            : writeToFile(path.join(folder, `code.${extension}`), code),
+            ? writeToFile(path.join(folder, `Main.${extension}`), decodeBase64(code))
+            : writeToFile(path.join(folder, `Main.${extension}`), code),
         ];
         for (let i = 0; i < testCases.length; i += 1) {
             const [input, output] = (base64)
