@@ -19,6 +19,8 @@ async function main() {
     worker.pause();
 
     worker.resume();
+
+    // worker.stop();
 }
 
 main();
