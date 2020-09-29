@@ -1,4 +1,5 @@
-import { Worker } from '../src/CodeExecutor';
+import { Worker, languages } from '../src/CodeExecutor';
+import logger from '../src/utils/logger';
 
 /**
   * name, redis, folderPath, default folderPath is /tmp/code-exec
@@ -8,6 +9,8 @@ import { Worker } from '../src/CodeExecutor';
 const worker = new Worker('myExecutor', 'redis://127.0.0.1:6379');
 
 async function main() {
+    logger.info(languages);
+
     /* array of languages is optional argument */
     await worker.build(['Python', 'Bash']);
 
