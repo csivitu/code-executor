@@ -45,6 +45,7 @@ export default class Runner {
         for (let i = 0; i < Paths.length; i += 1) {
             promisesToKeep.push(this.docker.run(tag, ['bash', '/start.sh', `${i}`, `${timeout}`], null, {
                 HostConfig: {
+                    NetworkMode: 'none',
                     AutoRemove: true,
                     Mounts: [{
                         Source: Paths[i],
