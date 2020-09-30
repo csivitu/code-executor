@@ -45,11 +45,10 @@ export default class Runner {
             : writeToFile(path.join(folder, `Main.${extension}`), code),
         ];
         for (let i = 0; i < testCases.length; i += 1) {
-            const [input, output] = (base64)
-                ? [decodeBase64(testCases[i].input), decodeBase64(testCases[i].output)]
-                : [testCases[i].input, testCases[i].output];
+            const input = (base64)
+                ? decodeBase64(testCases[i].input)
+                : testCases[i].input;
             promisesToKeep.push(writeToFile(path.join(folder, `in${i}.txt`), input));
-            promisesToKeep.push(writeToFile(path.join(folder, `out${i}.txt`), output));
         }
         await Promise.all(promisesToKeep);
         return folder;
@@ -95,7 +94,9 @@ export default class Runner {
 
         const tests: Tests[] = [];
         for (let i = 0; i < testCases.length; i += 1) {
-            const expectedOutput = testCases[i].output;
+            const expectedOutput = (base64)
+            ? decodeBase64(testCases[i].output)
+            : testCases[i].output;
             const obtainedOutput = output[i].toString();
             const time = runTime[i].toString().split('\n');
             const exitCode = parseInt(exitCodes[i].toString(), 10);
