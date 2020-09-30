@@ -28,7 +28,8 @@ export default class Worker {
         this.builder = new Builder(this.docker);
         this.queue = new Bull(name, redis);
 
-        const { folderPath, memory, CPUs } = options;
+        const opts = options || {};
+        const { folderPath, memory, CPUs } = opts;
 
         this.folderPath = folderPath || '/tmp/code-exec';
         this.memory = memory || 0;
