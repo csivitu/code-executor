@@ -1,5 +1,7 @@
 import Docker from 'dockerode';
-import { performance } from 'perf_hooks';
+import {
+    performance,
+} from 'perf_hooks';
 import del from 'del';
 import decodeBase64 from './utils/decodeBase64';
 import logger from './utils/logger';
@@ -38,28 +40,31 @@ export default class Runner {
         language,
         timeout,
     }: RunnerOpts): Promise < Result > {
-        const Path = await saveCode(folderPath, code, testCases, base64, language);
-
+        const Paths = await saveCode(folderPath, code, testCases, base64, language);
+        const promisesToKeep: Array<Promise<Array<object>>> = [];
+        for (let i = 0; i < Paths.length; i += 1) {
+            promisesToKeep.push(this.docker.run(tag, ['bash', '/start.sh', `${i}`, `${timeout}`], null, {
+                HostConfig: {
+                    AutoRemove: true,
+                    Mounts: [{
+                        Source: Paths[i],
+                        Target: '/app',
+                        Type: 'bind',
+                    }],
+                },
+            }));
+        }
         logger.info(`Starting process ${id}`);
-
         const t0 = performance.now();
-        await this.docker.run(tag, ['bash', '/start.sh', `${testCases.length}`, `${timeout}`], null, {
-            HostConfig: {
-                AutoRemove: true,
-                Mounts: [{
-                    Source: Path,
-                    Target: '/app',
-                    Type: 'bind',
-                }],
-            },
-        });
+        await Promise.all(promisesToKeep);
         const t1 = performance.now();
-
         logger.info(`Process ${id} completed in ${(t1 - t0) / 1000} seconds`);
 
-        const [output, runTime, error, exitCodes] = await getOutput(Path, testCases.length);
-        del(Path, {
-            force: true,
+        const [output, runTime, error, exitCodes] = await getOutput(Paths, testCases.length);
+        Paths.forEach((Path) => {
+            del(Path, {
+                force: true,
+            });
         });
 
         const tests: Tests[] = [];

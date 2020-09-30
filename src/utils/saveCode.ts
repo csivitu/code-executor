@@ -11,19 +11,23 @@ export default async function saveCode(
     testCases: TestCase[],
     base64: boolean,
     language: string,
-): Promise < string > {
-    const folder = await generateFolder(folderPath);
+): Promise<string[]> {
+    const folderPromises: Array<Promise<string>> = [];
+    testCases.forEach(() => {
+        folderPromises.push(generateFolder(folderPath));
+    });
+    const folders = await Promise.all(folderPromises);
     const extension = findExtension(language);
-    const promisesToKeep = [(base64)
-        ? writeToFile(path.join(folder, `Main.${extension}`), decodeBase64(code))
-        : writeToFile(path.join(folder, `Main.${extension}`), code),
-    ];
+    const promisesToKeep = [];
     for (let i = 0; i < testCases.length; i += 1) {
+        promisesToKeep.push((base64)
+            ? writeToFile(path.join(folders[i], `Main.${extension}`), decodeBase64(code))
+            : writeToFile(path.join(folders[i], `Main.${extension}`), code));
         const input = (base64)
             ? decodeBase64(testCases[i].input)
             : testCases[i].input;
-        promisesToKeep.push(writeToFile(path.join(folder, `in${i}.txt`), input));
+        promisesToKeep.push(writeToFile(path.join(folders[i], `in${i}.txt`), input));
     }
     await Promise.all(promisesToKeep);
-    return folder;
+    return folders;
 }
