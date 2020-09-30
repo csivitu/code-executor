@@ -18,12 +18,18 @@ export default class Worker {
 
     private folderPath?: string;
 
-    constructor(name: string, redis: string, folderPath?: string) {
+    private memory?: number;
+
+    private CPUs?: number;
+
+    constructor(name: string, redis: string, folderPath?: string, memory?: number, CPUs?: number) {
         this.docker = new Docker();
         this.runner = new Runner(this.docker);
         this.builder = new Builder(this.docker);
         this.queue = new Bull(name, redis);
         this.folderPath = folderPath || '/tmp/code-exec';
+        this.memory = (memory || 0) * 1000000;
+        this.CPUs = CPUs || 0.5;
     }
 
     private async work(codeOptions: Code): Promise<Result> {
@@ -38,6 +44,8 @@ export default class Worker {
             base64: codeOptions.base64 || false,
             language: codeOptions.language,
             timeout: codeOptions.timeout,
+            memory: this.memory,
+            CPUs: this.CPUs,
         });
 
         return result;

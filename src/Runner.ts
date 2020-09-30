@@ -22,6 +22,8 @@ interface RunnerOpts {
     folderPath: string;
     language: string;
     timeout: number;
+    memory: number;
+    CPUs: number;
 }
 export default class Runner {
     private docker: Docker;
@@ -39,12 +41,17 @@ export default class Runner {
         folderPath,
         language,
         timeout,
+        memory,
+        CPUs,
     }: RunnerOpts): Promise < Result > {
         const Paths = await saveCode(folderPath, code, testCases, base64, language);
         const promisesToKeep: Array<Promise<Array<object>>> = [];
         for (let i = 0; i < Paths.length; i += 1) {
             promisesToKeep.push(this.docker.run(tag, ['bash', '/start.sh', `${i}`, `${timeout}`], null, {
                 HostConfig: {
+                    CpuPeriod: 100000,
+                    CpuQuota: CPUs * 100000,
+                    Memory: memory,
                     NetworkMode: 'none',
                     AutoRemove: true,
                     Mounts: [{
