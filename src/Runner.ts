@@ -39,10 +39,13 @@ export default class Runner {
         timeout,
     }: RunnerOpts): Promise < Result > {
         const Path = await saveCode(folderPath, code, testCases, base64, language);
-        const container = await this.docker.createContainer({
-            Image: tag,
-            Cmd: ['bash', '/start.sh', `${testCases.length}`, `${timeout}`],
+
+        logger.info(`Starting process ${id}`);
+
+        const t0 = performance.now();
+        await this.docker.run(tag, ['bash', '/start.sh', `${testCases.length}`, `${timeout}`], null, {
             HostConfig: {
+                AutoRemove: true,
                 Mounts: [{
                     Source: Path,
                     Target: '/app',
@@ -50,17 +53,10 @@ export default class Runner {
                 }],
             },
         });
-
-        logger.info(`Starting process ${id}`);
-
-        const t0 = performance.now();
-        await container.start();
-        await container.wait();
         const t1 = performance.now();
 
-        logger.info(`Process ${id} completed in ${t1 / 1000 - t0 / 1000} seconds`);
+        logger.info(`Process ${id} completed in ${(t1 - t0) / 1000} seconds`);
 
-        container.remove();
         const [output, runTime, error, exitCodes] = await getOutput(Path, testCases.length);
         del(Path, {
             force: true,
