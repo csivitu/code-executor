@@ -184,7 +184,7 @@ const worker = new Worker('myExecutor', 'redis://127.0.0.1:6379');
 
 You can create a new `Worker` object and listen with the same `name` and `redis` string you passed to the master class. There is another optional parameter called `options`, which is an object that may consist of the following parameters:
 
-- `folderPath`, _string_: Will be discusses later.
+- `folderPath`, _string_: Will be discussed later.
 - `memory`, _number_: The amount of memory assigned to every Docker container spawned by this worker, in MB. The default is 0 (no limit).
 - `CPUs`, _number_: The number of CPUs assigned to every Docker container spawned by this worker. The default is 0.5.
 
@@ -253,7 +253,7 @@ See the [open issues](https://github.com/csivitu/code-executor/issues) for a lis
 
 
 <!-- CONTRIBUTING -->
-## Contributing
+## Contributingd
 
 Contributions are what make the open source community such an amazing place to be learn, inspire, and create. Any contributions you make are **greatly appreciated**.
 
