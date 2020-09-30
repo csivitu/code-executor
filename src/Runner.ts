@@ -1,18 +1,17 @@
 import Docker from 'dockerode';
-import path from 'path';
-import { performance } from 'perf_hooks';
+import {
+    performance,
+} from 'perf_hooks';
 import del from 'del';
-import writeToFile from './utils/writeToFile';
-import generateFolder from './utils/generateFolder';
 import decodeBase64 from './utils/decodeBase64';
 import logger from './utils/logger';
-import findExtension from './utils/findExtension';
 import {
     TestCase,
     Result,
     Tests,
 } from './models/models';
 import getOutput from './utils/getOutput';
+import saveCode from './utils/saveCode';
 
 interface RunnerOpts {
     id: string;
@@ -31,30 +30,6 @@ export default class Runner {
         this.docker = docker;
     }
 
-    private static async saveCode(
-        folderPath: string,
-        code: string,
-        testCases: TestCase[],
-        base64: boolean,
-        language: string,
-    ): Promise < string > {
-        const folder = await generateFolder(folderPath);
-        const extension = findExtension(language);
-        const promisesToKeep = [(base64)
-            ? writeToFile(path.join(folder, `code.${extension}`), decodeBase64(code))
-            : writeToFile(path.join(folder, `code.${extension}`), code),
-        ];
-        for (let i = 0; i < testCases.length; i += 1) {
-            const [input, output] = (base64)
-                ? [decodeBase64(testCases[i].input), decodeBase64(testCases[i].output)]
-                : [testCases[i].input, testCases[i].output];
-            promisesToKeep.push(writeToFile(path.join(folder, `in${i}.txt`), input));
-            promisesToKeep.push(writeToFile(path.join(folder, `out${i}.txt`), output));
-        }
-        await Promise.all(promisesToKeep);
-        return folder;
-    }
-
     async run({
         id,
         tag,
@@ -65,37 +40,38 @@ export default class Runner {
         language,
         timeout,
     }: RunnerOpts): Promise < Result > {
-        const Path = await Runner.saveCode(folderPath, code, testCases, base64, language);
-        const container = await this.docker.createContainer({
-            Image: tag,
-            Cmd: ['bash', '/start.sh', `${testCases.length}`, `${timeout}`],
-            HostConfig: {
-                Mounts: [{
-                    Source: Path,
-                    Target: '/app',
-                    Type: 'bind',
-                }],
-            },
-        });
-
+        const Paths = await saveCode(folderPath, code, testCases, base64, language);
+        const promisesToKeep: Array<Promise<Array<object>>> = [];
+        for (let i = 0; i < Paths.length; i += 1) {
+            promisesToKeep.push(this.docker.run(tag, ['bash', '/start.sh', `${i}`, `${timeout}`], null, {
+                HostConfig: {
+                    AutoRemove: true,
+                    Mounts: [{
+                        Source: Paths[i],
+                        Target: '/app',
+                        Type: 'bind',
+                    }],
+                },
+            }));
+        }
         logger.info(`Starting process ${id}`);
-
         const t0 = performance.now();
-        await container.start();
-        await container.wait();
+        await Promise.all(promisesToKeep);
         const t1 = performance.now();
+        logger.info(`Process ${id} completed in ${(t1 - t0) / 1000} seconds`);
 
-        logger.info(`Process ${id} completed in ${t1 / 1000 - t0 / 1000} seconds`);
-
-        container.remove();
-        const [output, runTime, error, exitCodes] = await getOutput(Path, testCases.length);
-        del(Path, {
-            force: true,
+        const [output, runTime, error, exitCodes] = await getOutput(Paths, testCases.length);
+        Paths.forEach((Path) => {
+            del(Path, {
+                force: true,
+            });
         });
 
         const tests: Tests[] = [];
         for (let i = 0; i < testCases.length; i += 1) {
-            const expectedOutput = testCases[i].output;
+            const expectedOutput = (base64)
+                ? decodeBase64(testCases[i].output)
+                : testCases[i].output;
             const obtainedOutput = output[i].toString();
             const time = runTime[i].toString().split('\n');
             const exitCode = parseInt(exitCodes[i].toString(), 10);

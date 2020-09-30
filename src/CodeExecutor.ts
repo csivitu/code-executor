@@ -3,6 +3,9 @@ import { v4 as uuid } from 'uuid';
 
 import { CodeParams, Result } from './models/models';
 import logger from './utils/logger';
+import { extension } from './utils/findExtension';
+
+const languages = Object.keys(extension);
 
 export default class CodeExecutor {
     private queue: Bull.Queue;
@@ -44,3 +47,5 @@ export default class CodeExecutor {
 }
 
 export { default as Worker } from './Worker';
+
+export { languages };

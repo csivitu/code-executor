@@ -64,4 +64,8 @@ export default class Worker {
     resume() {
         this.queue.resume();
     }
+
+    stop() {
+        this.queue.close();
+    }
 }
