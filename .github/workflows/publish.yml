@@ -36,3 +36,15 @@ jobs:
         run: npm publish --access public
         env:
           NODE_AUTH_TOKEN: ${{secrets.NPM_PUBLISH_TOKEN}}
+
+      - name: Create Release
+        id: create_release
+        uses: actions/create-release@v1
+        if: steps.check.outputs.versionChanged == 'true'
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          tag_name: ${{ steps.check.outputs.releaseVersion }}
+          release_name: Release ${{ steps.check.outputs.releaseVersion }}
+          draft: false
+          prerelease: false
