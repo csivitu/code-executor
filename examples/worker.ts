@@ -2,9 +2,9 @@ import { Worker, languages } from '../src/CodeExecutor';
 import logger from '../src/utils/logger';
 
 /**
-  * name, redis, folderPath, default folderPath is /tmp/code-exec
-  * (folderPath will be mounted in container,
-  * the code and testcases will be saved here)
+  * name, redis, folderPath ( path to mount, default /tmp/code-exec ),
+  * memory (in MB, default 0, ie no limit),
+  * CPUs (no. of CPUs, default 0.5)
 */
 const worker = new Worker('myExecutor', 'redis://127.0.0.1:6379');
 
