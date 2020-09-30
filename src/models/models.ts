@@ -29,3 +29,9 @@ export interface Result {
     id: string;
     tests: Tests[];
 }
+
+export interface WorkerOptions {
+    folderPath?: string;
+    memory?: number;
+    CPUs?: number;
+}

@@ -182,8 +182,21 @@ import { Worker } from 'code-executor';
 const worker = new Worker('myExecutor', 'redis://127.0.0.1:6379');
 ```
 
-You can create a new `Worker` object and listen with the same `name` and `redis` string you passed to the master class. There is another optional parameter called `folderPath`, which we will discuss later.
-<br />
+You can create a new `Worker` object and listen with the same `name` and `redis` string you passed to the master class. There is another optional parameter called `options`, which is an object that may consist of the following parameters:
+
+- `folderPath`, _string_: Will be discusses later.
+- `memory`, _number_: The amount of memory assigned to every Docker container spawned by this worker, in MB. The default is 0 (no limit).
+- `CPUs`, _number_: The number of CPUs assigned to every Docker container spawned by this worker. The default is 0.5.
+
+For example, you could pass these values to the constructor.
+
+```js
+const worker = new Worker('myExecutor', 'redis://127.0.0.1:6379', {
+  folderPath: '/tmp/myFolder',
+  memory: 100,
+  CPUs: 1,
+});
+```
 
 An object of the `Worker` class has the following important functions:
 
