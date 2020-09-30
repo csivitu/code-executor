@@ -31,7 +31,7 @@ export default class Worker {
         const { folderPath, memory, CPUs } = options;
 
         this.folderPath = folderPath || '/tmp/code-exec';
-        this.memory = (memory || 0) * 1000000;
+        this.memory = memory || 0;
         this.CPUs = CPUs || 0.5;
     }
 
