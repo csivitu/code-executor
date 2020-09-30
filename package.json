@@ -13,7 +13,8 @@
     "code-runner"
   ],
   "scripts": {
-    "build": "npm run clean && tsc",
+    "build": "npm run clean && tsc && npm run build:dockerfiles",
+    "build:dockerfiles": "cp -r src/langs dist/src/langs",
     "clean": "rimraf ./dist",
     "test": "mocha --config test/.mocharc.json test/**/*.ts",
     "lint": "eslint \"src/**/*.{ts,js,jsx}\" \"test/**/*.ts\" \"examples/**/*.{ts,js}\"",
