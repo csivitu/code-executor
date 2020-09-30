@@ -1,18 +1,15 @@
 import Docker from 'dockerode';
-import path from 'path';
 import { performance } from 'perf_hooks';
 import del from 'del';
-import writeToFile from './utils/writeToFile';
-import generateFolder from './utils/generateFolder';
 import decodeBase64 from './utils/decodeBase64';
 import logger from './utils/logger';
-import findExtension from './utils/findExtension';
 import {
     TestCase,
     Result,
     Tests,
 } from './models/models';
 import getOutput from './utils/getOutput';
+import saveCode from './utils/saveCode';
 
 interface RunnerOpts {
     id: string;
@@ -31,29 +28,6 @@ export default class Runner {
         this.docker = docker;
     }
 
-    private static async saveCode(
-        folderPath: string,
-        code: string,
-        testCases: TestCase[],
-        base64: boolean,
-        language: string,
-    ): Promise < string > {
-        const folder = await generateFolder(folderPath);
-        const extension = findExtension(language);
-        const promisesToKeep = [(base64)
-            ? writeToFile(path.join(folder, `Main.${extension}`), decodeBase64(code))
-            : writeToFile(path.join(folder, `Main.${extension}`), code),
-        ];
-        for (let i = 0; i < testCases.length; i += 1) {
-            const input = (base64)
-                ? decodeBase64(testCases[i].input)
-                : testCases[i].input;
-            promisesToKeep.push(writeToFile(path.join(folder, `in${i}.txt`), input));
-        }
-        await Promise.all(promisesToKeep);
-        return folder;
-    }
-
     async run({
         id,
         tag,
@@ -64,7 +38,7 @@ export default class Runner {
         language,
         timeout,
     }: RunnerOpts): Promise < Result > {
-        const Path = await Runner.saveCode(folderPath, code, testCases, base64, language);
+        const Path = await saveCode(folderPath, code, testCases, base64, language);
         const container = await this.docker.createContainer({
             Image: tag,
             Cmd: ['bash', '/start.sh', `${testCases.length}`, `${timeout}`],
@@ -95,8 +69,8 @@ export default class Runner {
         const tests: Tests[] = [];
         for (let i = 0; i < testCases.length; i += 1) {
             const expectedOutput = (base64)
-            ? decodeBase64(testCases[i].output)
-            : testCases[i].output;
+                ? decodeBase64(testCases[i].output)
+                : testCases[i].output;
             const obtainedOutput = output[i].toString();
             const time = runTime[i].toString().split('\n');
             const exitCode = parseInt(exitCodes[i].toString(), 10);
