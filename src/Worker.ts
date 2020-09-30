@@ -4,7 +4,7 @@ import Bull from 'bull';
 import Runner from './Runner';
 import Builder from './Builder';
 
-import { Code, Result } from './models/models';
+import { Code, Result, WorkerOptions } from './models/models';
 import logger from './utils/logger';
 
 export default class Worker {
@@ -22,11 +22,14 @@ export default class Worker {
 
     private CPUs?: number;
 
-    constructor(name: string, redis: string, folderPath?: string, memory?: number, CPUs?: number) {
+    constructor(name: string, redis: string, options?: WorkerOptions) {
         this.docker = new Docker();
         this.runner = new Runner(this.docker);
         this.builder = new Builder(this.docker);
         this.queue = new Bull(name, redis);
+
+        const { folderPath, memory, CPUs } = options;
+
         this.folderPath = folderPath || '/tmp/code-exec';
         this.memory = (memory || 0) * 1000000;
         this.CPUs = CPUs || 0.5;
