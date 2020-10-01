@@ -9,6 +9,10 @@ time.sleep(1)
 print('hello')
 `;
 
+const bashCode = `
+echo hello
+`;
+
 const inputs = [{
     language: 'Python',
     code: pythonCode,
@@ -22,7 +26,7 @@ const inputs = [{
 },
 {
     language: 'Bash',
-    code: 'echo hello',
+    code: bashCode,
     testCases: [
         {
             input: '',

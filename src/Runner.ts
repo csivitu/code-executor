@@ -89,7 +89,7 @@ export default class Runner {
             if (exitCode === 124) {
                 remarks = 'Time limit exceeded';
             } else if (exitCode === 0) {
-                remarks = expectedOutput === obtainedOutput ? 'Pass' : 'Fail';
+                remarks = expectedOutput.trim() === obtainedOutput.trim() ? 'Pass' : 'Fail';
             } else {
                 remarks = 'Error';
             }
