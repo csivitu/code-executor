@@ -1,14 +1,7 @@
-/* eslint-disable no-console */
 import CodeExecutor from '../src/CodeExecutor';
 import logger from '../src/utils/logger';
 
 const codeExecutor = new CodeExecutor('myExecutor', 'redis://127.0.0.1:6379');
-
-/**
-  * base64: true is also an option if input,
-  * output and code are encoded in base64,
-  * default is false
-* */
 
 const pythonCode = `
 import time

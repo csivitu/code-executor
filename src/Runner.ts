@@ -48,6 +48,7 @@ export default class Runner {
         const promisesToKeep: Array<Promise<Array<object>>> = [];
         for (let i = 0; i < Paths.length; i += 1) {
             promisesToKeep.push(this.docker.run(tag, ['bash', '/start.sh', `${i}`, `${timeout}`], null, {
+                User: 'runner',
                 HostConfig: {
                     CpuPeriod: 100000,
                     CpuQuota: CPUs * 100000,
