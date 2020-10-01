@@ -138,7 +138,14 @@ You can create a `CodeExecutor` object in the following manner. You must pass th
 
 
 ```js
-import CodeExecutor from 'code-executor';
+import { CodeExecutor } from 'code-executor';
+const codeExecutor = new CodeExecutor('myExecutor', 'redis://127.0.0.1:6379');
+```
+
+**OR**
+
+```js
+const { CodeExecutor } = require('code-executor');
 const codeExecutor = new CodeExecutor('myExecutor', 'redis://127.0.0.1:6379');
 ```
 
@@ -179,6 +186,13 @@ By now, we know how to use the `CodeExecutor` class to assign jobs to workers. N
 
 ```js
 import { Worker } from 'code-executor';
+const worker = new Worker('myExecutor', 'redis://127.0.0.1:6379');
+```
+
+**OR**
+
+```js
+const { Worker } = require('code-executor');
 const worker = new Worker('myExecutor', 'redis://127.0.0.1:6379');
 ```
 
