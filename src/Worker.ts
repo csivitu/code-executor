@@ -55,8 +55,13 @@ export default class Worker {
         return result;
     }
 
-    async build(langs?: Array<string>) {
-        await this.builder.build(langs);
+    async build(langs?: Array<string>): Promise<void> {
+        try {
+            await this.builder.build(langs);
+            return null;
+        } catch (e) {
+            return Promise.reject(e);
+        }
     }
 
     start() {
