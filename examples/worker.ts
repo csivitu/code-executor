@@ -1,4 +1,4 @@
-import { Worker } from '../src/CodeExecutor';
+import { Worker } from '../src';
 
 const worker = new Worker('myExecutor', 'redis://127.0.0.1:6379');
 

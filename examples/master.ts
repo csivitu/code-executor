@@ -1,4 +1,4 @@
-import CodeExecutor from '../src/CodeExecutor';
+import { CodeExecutor } from '../src';
 import logger from '../src/utils/logger';
 
 const codeExecutor = new CodeExecutor('myExecutor', 'redis://127.0.0.1:6379');
