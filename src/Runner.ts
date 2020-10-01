@@ -51,8 +51,8 @@ export default class Runner {
                 User: 'runner',
                 HostConfig: {
                     CpuPeriod: 100000,
-                    CpuQuota: CPUs * 100000,
-                    Memory: memory,
+                    CpuQuota: CPUs * 1000000,
+                    Memory: memory * 1000000,
                     NetworkMode: 'none',
                     AutoRemove: true,
                     Mounts: [{
