@@ -40,7 +40,7 @@ async function main() {
     const results = await Promise.all(
         inputs.map((input) => codeExecutor.runCode(input)),
     );
-    logger.info(results);
+    logger.info(JSON.stringify(results));
     codeExecutor.stop();
 }
 

@@ -67,10 +67,13 @@ export default class Worker {
     start() {
         this.queue.process(async (job, done) => {
             logger.info(`Received: ${job.data.id}`);
-            const result = await this.work(job.data);
-
-            logger.debug(JSON.stringify(result));
-            done(null, result);
+            try {
+                const result = await this.work(job.data);
+                done(null, result);
+                logger.debug(JSON.stringify(result));
+            } catch (e) {
+                done(e);
+            }
         });
     }
 

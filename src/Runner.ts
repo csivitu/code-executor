@@ -65,7 +65,11 @@ export default class Runner {
         }
         logger.info(`Starting process ${id}`);
         const t0 = performance.now();
-        await Promise.all(promisesToKeep);
+        try {
+            await Promise.all(promisesToKeep);
+        } catch (e) {
+            return Promise.reject(e);
+        }
         const t1 = performance.now();
         logger.info(`Process ${id} completed in ${(t1 - t0) / 1000} seconds`);
 
