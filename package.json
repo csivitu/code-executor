@@ -1,6 +1,6 @@
 {
   "name": "code-executor",
-  "version": "0.1.7",
+  "version": "0.1.8",
   "description": "A CLI/library to execute code against test cases in various languages and obtain relevant results.",
   "main": "dist/src/CodeExecutor.js",
   "keywords": [
@@ -15,7 +15,7 @@
   "scripts": {
     "build": "npm run clean && tsc && npm run build:dockerfiles",
     "build:dockerfiles": "shx cp -r src/langs dist/src/langs",
-    "clean": "shx rm -r ./dist",
+    "clean": "shx rm -rf ./dist",
     "test": "mocha --config test/.mocharc.json test/**/*.ts",
     "lint": "eslint \"src/**/*.{ts,js,jsx}\" \"test/**/*.ts\" \"examples/**/*.{ts,js}\"",
     "lint:fix": "eslint --fix \"src/**/*.{ts,js,jsx}\" \"test/**/*.ts\" \"examples/**/*.{ts,js}\"",
