@@ -26,13 +26,20 @@ export default class Builder {
                     t: `${lang.toLowerCase()}-runner`,
                 }));
             } else {
-                logger.error(`${lang} is not supported`);
+                streams.push(Promise.reject(new Error(`${lang} is not supported`)));
             }
         });
 
-        const progress: Promise<object>[] = [];
+        let resolvedStreams;
+        try {
+            resolvedStreams = await Promise.all(streams);
+        } catch (e) {
+            logger.error(e);
+            return Promise.reject(e);
+        }
 
-        (await Promise.all(streams)).forEach((stream) => {
+        const progress: Promise<object>[] = [];
+        (resolvedStreams).forEach((stream) => {
             stream.on('data', (chunk) => {
                 logger.debug(chunk);
             });
@@ -50,8 +57,13 @@ export default class Builder {
                 });
             }));
         });
-
-        await Promise.all(progress);
+        try {
+            await Promise.all(progress);
+        } catch (e) {
+            logger.error(e);
+            return Promise.reject(e);
+        }
         logger.info('Built containers successfully');
+        return null;
     }
 }

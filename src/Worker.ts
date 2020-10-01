@@ -55,17 +55,26 @@ export default class Worker {
         return result;
     }
 
-    async build(langs?: Array<string>) {
-        await this.builder.build(langs);
+    async build(langs?: Array<string>): Promise<void> {
+        try {
+            await this.builder.build(langs);
+            return null;
+        } catch (e) {
+            return Promise.reject(e);
+        }
     }
 
     start() {
         this.queue.process(async (job, done) => {
             logger.info(`Received: ${job.data.id}`);
-            const result = await this.work(job.data);
-
-            logger.debug(JSON.stringify(result));
-            done(null, result);
+            try {
+                const result = await this.work(job.data);
+                done(null, result);
+                logger.debug(JSON.stringify(result));
+            } catch (e) {
+                done(e);
+                logger.error(e);
+            }
         });
     }
 
