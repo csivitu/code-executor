@@ -31,6 +31,9 @@ export default class CodeExecutor {
     }
 
     async runCode(codeOptions: CodeParams): Promise<void> {
+        if (!languages.includes(codeOptions.language)) {
+            return Promise.reject(new Error('Language not supported!'));
+        }
         const id = uuid();
         const codeObject = { ...codeOptions, id };
         logger.info(`Running code with id: ${id}`);

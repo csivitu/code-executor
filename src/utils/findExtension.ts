@@ -5,7 +5,7 @@ export default function findExtension(language: string) {
     let fileExtension = '';
     Object.entries(extension).forEach((entry) => {
         const [key, value] = entry;
-        if (key.toLowerCase() === language.toLowerCase()) {
+        if (key === language) {
             fileExtension = value;
         }
     });
