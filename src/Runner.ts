@@ -9,7 +9,7 @@ import {
     TestCase,
     Result,
     Tests,
-} from './models/models';
+} from './models';
 import getOutput from './utils/getOutput';
 import saveCode from './utils/saveCode';
 

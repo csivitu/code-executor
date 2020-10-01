@@ -4,7 +4,7 @@ import Bull from 'bull';
 import Runner from './Runner';
 import Builder from './Builder';
 
-import { Code, Result, WorkerOptions } from './models/models';
+import { Code, Result, WorkerOptions } from './models';
 import logger from './utils/logger';
 
 export default class Worker {
