@@ -73,6 +73,7 @@ export default class Worker {
                 logger.debug(JSON.stringify(result));
             } catch (e) {
                 done(e);
+                logger.error(e);
             }
         });
     }
