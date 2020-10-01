@@ -48,6 +48,7 @@ export default class Runner {
         const promisesToKeep: Array<Promise<Array<object>>> = [];
         for (let i = 0; i < Paths.length; i += 1) {
             promisesToKeep.push(this.docker.run(tag, ['bash', '/start.sh', `${i}`, `${timeout}`], null, {
+                User: 'runner',
                 HostConfig: {
                     CpuPeriod: 100000,
                     CpuQuota: CPUs * 1000000,
@@ -64,7 +65,11 @@ export default class Runner {
         }
         logger.info(`Starting process ${id}`);
         const t0 = performance.now();
-        await Promise.all(promisesToKeep);
+        try {
+            await Promise.all(promisesToKeep);
+        } catch (e) {
+            return Promise.reject(e);
+        }
         const t1 = performance.now();
         logger.info(`Process ${id} completed in ${(t1 - t0) / 1000} seconds`);
 
@@ -88,7 +93,7 @@ export default class Runner {
             if (exitCode === 124) {
                 remarks = 'Time limit exceeded';
             } else if (exitCode === 0) {
-                remarks = expectedOutput === obtainedOutput ? 'Pass' : 'Fail';
+                remarks = expectedOutput.trim() === obtainedOutput.trim() ? 'Pass' : 'Fail';
             } else {
                 remarks = 'Error';
             }
