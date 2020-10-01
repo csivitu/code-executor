@@ -224,6 +224,8 @@ An object of the `Worker` class has the following important functions:
 
 `worker.build()` is responsible for building docker images on the system. You can pass a list of languages to the function so that it builds images for just the specified languages.
 
+- You can also call `worker.build()` without an argument to build all languages supported by `code-executor`.
+
 ```js
 async function build() {
   await worker.build(['Python', 'Bash']);
