@@ -138,7 +138,14 @@ You can create a `CodeExecutor` object in the following manner. You must pass th
 
 
 ```js
-import CodeExecutor from 'code-executor';
+import { CodeExecutor } from 'code-executor';
+const codeExecutor = new CodeExecutor('myExecutor', 'redis://127.0.0.1:6379');
+```
+
+**OR**
+
+```js
+const { CodeExecutor } = require('code-executor');
 const codeExecutor = new CodeExecutor('myExecutor', 'redis://127.0.0.1:6379');
 ```
 
@@ -182,6 +189,13 @@ import { Worker } from 'code-executor';
 const worker = new Worker('myExecutor', 'redis://127.0.0.1:6379');
 ```
 
+**OR**
+
+```js
+const { Worker } = require('code-executor');
+const worker = new Worker('myExecutor', 'redis://127.0.0.1:6379');
+```
+
 You can create a new `Worker` object and listen with the same `name` and `redis` string you passed to the master class. There is another optional parameter called `options`, which is an object that may consist of the following parameters:
 
 - `folderPath`, _string_: Will be discussed later.
@@ -209,6 +223,8 @@ An object of the `Worker` class has the following important functions:
 ### worker.build(langs)
 
 `worker.build()` is responsible for building docker images on the system. You can pass a list of languages to the function so that it builds images for just the specified languages.
+
+- You can also call `worker.build()` without an argument to build all languages supported by `code-executor`.
 
 ```js
 async function build() {

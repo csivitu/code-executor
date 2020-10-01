@@ -3,7 +3,7 @@ import writeToFile from './writeToFile';
 import generateFolder from './generateFolder';
 import findExtension from './findExtension';
 import decodeBase64 from './decodeBase64';
-import { TestCase } from '../models/models';
+import { TestCase } from '../models';
 
 export default async function saveCode(
     folderPath: string,

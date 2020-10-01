@@ -1,7 +1,7 @@
 import Bull from 'bull';
 import { v4 as uuid } from 'uuid';
 
-import { CodeParams } from './models/models';
+import { CodeParams } from './models';
 import logger from './utils/logger';
 import { extension } from './utils/findExtension';
 
@@ -31,7 +31,5 @@ export default class CodeExecutor {
         this.queue.close();
     }
 }
-
-export { default as Worker } from './Worker';
 
 export { languages };
