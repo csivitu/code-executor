@@ -12,6 +12,7 @@ import {
 } from './models';
 import getOutput from './utils/getOutput';
 import saveCode from './utils/saveCode';
+import matchLines from './utils/matchLines';
 
 interface RunnerOpts {
     id: string;
@@ -93,7 +94,7 @@ export default class Runner {
             if (exitCode === 124) {
                 remarks = 'Time limit exceeded';
             } else if (exitCode === 0) {
-                remarks = expectedOutput.trim() === obtainedOutput.trim() ? 'Pass' : 'Fail';
+                remarks = matchLines(expectedOutput, obtainedOutput);
             } else {
                 remarks = 'Error';
             }
