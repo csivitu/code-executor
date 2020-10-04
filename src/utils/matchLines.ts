@@ -1,6 +1,6 @@
 export default function matchLines(expected: string, obtained: string): 'Pass' | 'Fail' {
     function splitAndTrim(code: string) {
-        return code.split('\n').map((sentence) => sentence.trim());
+        return code.split('\n').map((sentence) => sentence.trimEnd());
     }
 
     const expectedArray = splitAndTrim(expected);
