@@ -1,14 +1,18 @@
 export default function matchLines(expected: string, obtained: string): 'Pass' | 'Fail' {
     function splitAndTrim(code: string) {
-        return code.split('\n').map((sentence) => sentence.trim());
+        return code.split('\n').map((sentence) => sentence.trimEnd());
     }
 
-    const expectedArray = splitAndTrim(expected);
-    const obtainedArray = splitAndTrim(obtained);
+    const expectedArray = splitAndTrim(expected.trim());
+    const obtainedArray = splitAndTrim(obtained.trim());
 
-    const minLength = Math.min(expectedArray.length, obtainedArray.length);
+    if (expectedArray.length !== obtainedArray.length) {
+        return 'Fail';
+    }
 
-    for (let i = 0; i < minLength; i += 1) {
+    const { length } = expectedArray;
+
+    for (let i = 0; i < length; i += 1) {
         if (expectedArray[i] !== obtainedArray[i]) {
             return 'Fail';
         }
