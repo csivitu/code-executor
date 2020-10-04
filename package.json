@@ -1,6 +1,6 @@
 {
   "name": "code-executor",
-  "version": "0.2.2",
+  "version": "0.2.3",
   "description": "A CLI/library to execute code against test cases in various languages and obtain relevant results.",
   "main": "dist/src/index.js",
   "keywords": [
