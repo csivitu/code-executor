@@ -25,7 +25,6 @@ class WorkerCLI {
             });
 
         this.program
-            .option('-n, --number <number>', 'number of workers')
             .option('-r, --redis <redis>', 'URL for the redis instance')
             .option('-q, --queue <queue>', 'name of the redis queue')
             .option('-l, --langs <langs...>', 'list of languages to build');
@@ -35,7 +34,6 @@ class WorkerCLI {
         const opts = this.program.opts();
 
         const options: WorkerCLIOptions = {
-            number: opts.number || 1,
             redis: opts.redis || 'redis://127.0.0.1:6379',
             queue: opts.queue || 'myExecutor',
             langs: opts.langs || [],

@@ -37,7 +37,6 @@ export interface WorkerOptions {
 }
 
 export interface WorkerCLIOptions {
-    number: number;
     queue: string;
     redis: string;
     langs: string[];
