@@ -35,3 +35,10 @@ export interface WorkerOptions {
     memory?: number;
     CPUs?: number;
 }
+
+export interface WorkerCLIOptions {
+    number: number;
+    queue: string;
+    redis: string;
+    langs: string[];
+}
