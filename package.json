@@ -12,6 +12,9 @@
     "parallel-execution",
     "code-runner"
   ],
+  "bin": {
+    "code-executor": "bin/code-executor"
+  },
   "scripts": {
     "build": "npm run clean && tsc && npm run build:dockerfiles",
     "build:dockerfiles": "shx cp -r src/langs dist/src/langs",
