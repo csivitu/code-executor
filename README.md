@@ -96,27 +96,25 @@ npm install code-executor --save
 
 ### TL;DR
 
-- In your backend, you can create a `CodeExecutor` object, which has a `runCode` method. This returns a promise which resolves when the program passed to it has finished executing. You can check out [this example](https://github.com/csivitu/code-executor/blob/master/examples/master.ts) to find out how to use a `CodeExecutor` object.
+1. In your backend, you can create a `CodeExecutor` object, which has a `runCode` method. This returns a promise which resolves when the program passed to it has finished executing. You can check out [this example](https://github.com/csivitu/code-executor/blob/master/examples/master.ts) to find out how to use a `CodeExecutor` object.
 
-- Now, you can create any number of workers by running the following script (a CLI is coming soon!):
+2. Now, you can create a worker using the `code-executor` CLI. For that, you need to first install `code-executor` globally.
 
-```js
-import { Worker } from 'code-executor';
-
-const worker = new Worker('myExecutor', 'redis://127.0.0.1:6379');
-
-async function main() {
-    /* array of languages is optional argument */
-    await worker.build(['Python', 'Bash']);
-
-    worker.start();
-}
-
-main();
+```bash
+npm i -g code-executor
 ```
 
-- Make sure that the `name` and the `redis` parameters passed to both the objects (of `CodeExecutor` and `Worker`) are exactly the same for `code-executor` to function properly. That's all!
+3. You can spawn a worker using the `spawn-worker` command (`sw` in short), and optionally pass the `redis` URL (default: `redis://127.0.0.1:6379`), the name of the queue (default: `myExecutor`), and languages to build (default: all).
 
+```bash
+code-executor sw
+```
+
+4. If you used some other redis URL or queue name in step 1, make sure you pass those to the CLI.
+
+```bash
+code-executor sw --redis <redis-url> --queue <queue-name>
+```
 
 ### Brief Description
 
@@ -182,7 +180,49 @@ codeExecutor.stop();
 
 ### Worker
 
-By now, we know how to use the `CodeExecutor` class to assign jobs to workers. Now, we will learn how to use the `Worker` class to create workers that will run your code.
+By now, we know how to use the `CodeExecutor` class to assign jobs to workers. Now, we see how to use the `Worker` class to create workers that will run your code.
+
+The easiest way to spawn workers is by using the CLI provided by the library. For this, you need to globally install `code-executor` using:
+
+```bash
+npm install -g code-executor
+```
+
+Once you install it globally, you can run `code-executor -h` to see the options available to you.
+
+```bash
+$ code-executor -h               
+Usage: code-executor [options] [command]
+
+Options:
+  -r, --redis <redis>     URL for the redis instance
+  -q, --queue <queue>     name of the redis queue
+  -l, --langs <langs...>  list of languages to build
+  -h, --help              display help for command
+
+Commands:
+  spawn-worker|sw         spawn worker process
+  help [command]          display help for command
+```
+
+To spawn a worker, run
+
+```bash
+code-executor sw
+```
+
+Here's another small example to spawn a worker supporting Python and Bash.
+
+```bash
+code-executor sw -l Python Bash
+```
+
+To spawn multiple workers, you can run the previous command several times.
+
+> Note: `code-executor` does not ensure that a worker will not take up a job if it doesn't support that language. Therefore, each worker you start should support all the languages you need to build. For example, if you need Python, Javascript and Bash, all the workers should be started with these languages. Since the workers build Docker containers, after 1 worker builds all its containers, the remaining workers will use the Docker cache and thus will be able to build much faster.
+
+You can also use the API to build you own script to spawn workers. You can use the CLI in almost every use case, however, the API provides a lot more customization, as you can see below.
+
 
 ```js
 import { Worker } from 'code-executor';
@@ -293,7 +333,7 @@ Distributed under the MIT License. See [`LICENSE`](./LICENSE) for more informati
 <!-- https://www.markdownguide.org/basic-syntax/#reference-style-links -->
 [csivitu-shield]: https://img.shields.io/badge/csivitu-csivitu-blue
 [csivitu-url]: https://csivit.com
-[issues-shield]: https://img.shields.io/github/issues/othneildrew/Best-README-Template.svg?style=flat-square
+[issues-shield]: https://img.shields.io/github/issues/csivitu/code-executor?style=flat-square
 [issues-url]: https://github.com/csivitu/code-executor/issues
 
 ## Contributors ✨
